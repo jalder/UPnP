@@ -1,0 +1,22 @@
+{
+    "name": "jalder/Upnp",
+    "description": "UPnP utilities for PHP applications",
+    "license": "MIT",
+    "keywords": ["upnp"],
+    "version": "0.0.1",
+    "authors": [
+        {
+            "name": "John Alder",
+            "email": "jack@jalder.com"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "4.1.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jalder\\Upnp\\": "src"
+        }
+    }
+}
