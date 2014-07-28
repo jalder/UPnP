@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Jalder\Upnp;
+namespace jalder\Upnp;
 
 class Core {
 
@@ -68,10 +68,18 @@ class Core {
         return $parsedResponse;
     }
     
-    public function getDescription($location)
+    public function getDescription($url)
     {
-        //do curl stuff here
-        return array();
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $content = curl_exec($ch);
+        $xml = simplexml_load_string($content);
+        $json = json_encode($xml);
+        $desc = (array)json_decode($json, true);
+        curl_close($ch);
+        return $desc;
     }
 
 }

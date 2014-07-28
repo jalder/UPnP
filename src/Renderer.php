@@ -1,6 +1,6 @@
 <?php
 
-namespace Jalder\Upnp;
+namespace jalder\Upnp;
 
 class Renderer extends Core
 {

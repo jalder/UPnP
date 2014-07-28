@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Jalder\\Upnp\\": "src"
+            "jalder\\Upnp\\": "src"
         }
     }
 }

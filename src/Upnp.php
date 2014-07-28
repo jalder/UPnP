@@ -7,7 +7,7 @@
  *
  */
 
-namespace Jalder\Upnp;
+namespace jalder\Upnp;
 
 class Upnp {
 
