@@ -11,9 +11,75 @@ class Remote
         $this->location = $location;
     }
 
+    public function home()
+    {
+        return $this->curl('keypress/home');
+    }
+
+    public function back()
+    {
+        return $this->curl('keypress/back');
+    }
+
+    public function dPad($dir = 'up')
+    {
+        switch($dir)
+        {
+            case 'up':
+                $dir = 'up';
+            break;
+            case 'down':
+                $dir = 'down';
+            break;
+            case 'left':
+                $dir = 'left';
+            break;
+            case 'right':
+                $dir = 'right';
+            break;
+            default:
+                $dir = 'up';
+            break;
+        }
+        return $this->curl('keypress/'.$dir);
+    }
+
     public function ok()
     {
         return $this->curl('keypress/select');
+    }
+
+    public function options()
+    {
+        return $this->curl('keypress/info');
+    }
+
+    public function rewind()
+    {
+        return $this->curl('keypress/rev');
+    }
+
+    public function fforward()
+    {
+        return $this->curl('keypress/fwd');
+    }
+
+    public function pause()
+    {
+        return $this->curl('keypress/play');
+    }
+
+    public function play()
+    {
+        return $this->curl('keypress/play');
+    }
+
+    public function type($query)
+    {
+        foreach(str_split($query) as $char){
+            $this->curl('keypress/Lit_'.urlencode($char));
+        }
+        return true;
     }
 
     public function getChannels()
@@ -30,6 +96,11 @@ class Remote
             );
         }
         return $channels;
+    }
+
+    public function loadChannel($channel_id)
+    {
+        return $this->curl('launch/'.$channel_id);
     }
 
     private function curl($request, $post = true)

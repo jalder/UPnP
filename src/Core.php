@@ -1,6 +1,5 @@
 <?php
 
-
 namespace jalder\Upnp;
 
 class Core {
