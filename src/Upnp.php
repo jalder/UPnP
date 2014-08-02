@@ -9,20 +9,21 @@
 
 namespace jalder\Upnp;
 
-class Upnp {
+class Upnp extends Core{
 
     public function __construct()
     {
 
     }
 
+    public function discover()
+    {
+        return parent::search();
+    }
 
-    //this will open socket and get upnp list
     public function alive()
     {
-        $core = new Core();
-        $results = $core->search();
-        return (bool)count($results);
+        return (bool)count($this->discover());
     }
 
 }

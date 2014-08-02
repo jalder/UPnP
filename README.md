@@ -3,10 +3,10 @@ PHP UPnP Library
 PHP Library for Interacting with UPnP Network Devices
 -----------------------------------------------------
 
-h3. Composer PSR-4 compliant UPnP library.
+### Composer PSR-4 compliant UPnP library.
 Work In Progress
 
-h3. Examples
+### Examples
 
 ```
 $ms = new Mediaserver();
