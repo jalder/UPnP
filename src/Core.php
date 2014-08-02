@@ -81,4 +81,50 @@ class Core {
         return $desc;
     }
 
+    public function sendRequestToDevice($method, $arguments, $url, $type, $hostIp = '127.0.0.1', $hostPort = '80')
+    {
+        $body  ='<?xml version="1.0" encoding="utf-8"?>' . "\r\n";
+        $body .='<s:Envelope s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">' . "\r\n";
+        $body .='   <s:Body>' . "\r\n";
+        $body .='      <u:'.$method.' xmlns:u="urn:schemas-upnp-org:service:'.$type.':1">' . "\r\n";
+        foreach( $arguments as $arg=>$value ) {
+            $body .='         <'.$arg.'>'.$value.'</'.$arg.'>' . "\r\n";
+        }
+        $body .='      </u:'.$method.'>' . "\r\n";
+        $body .='   </s:Body>' . "\r\n";
+        $body .='</s:Envelope>' . "\r\n\r\n";
+
+        $header = array(
+            'SOAPACTION: "urn:schemas-upnp-org:service:'.$type.'#'.$method,
+            'CONTENT-TYPE: text/xml ; charset="utf-8"',
+            'HOST: '.$hostIp.':'.$hostPort,
+            'Connection: close',
+            'Content-Length: ' . strlen($body),
+        );
+
+        $ch = curl_init();
+        curl_setopt( $ch, CURLOPT_HTTPHEADER, $header );
+        curl_setopt( $ch, CURLOPT_HEADER, 0);
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );
+        curl_setopt( $ch, CURLOPT_URL, $url );
+        curl_setopt( $ch, CURLOPT_POST, TRUE );
+        curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
+        $response = curl_exec( $ch );
+        curl_close( $ch );
+        
+        $doc = new \DOMDocument();
+        $doc->loadXML($response);
+        $result = $doc->getElementsByTagName('Result');
+        if(is_object($result->item(0))){
+            return $result->item(0)->nodeValue;
+        }
+        return false;
+
+    }
+
+    public function baseUrl($url)
+    {
+        $url = parse_url($url);
+        return $url['scheme'].'://'.$url['host'].':'.$url['port'];
+    }
 }
