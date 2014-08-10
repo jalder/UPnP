@@ -3,7 +3,8 @@ PHP UPnP Library
 PHP Library for Interacting with UPnP Network Devices
 -----------------------------------------------------
 
-### Composer PSR-4 compliant UPnP library.
+Composer PSR-4 compliant UPnP library.
+
 Work In Progress
 
 ### Examples
@@ -28,7 +29,7 @@ foreach($renderers as $r){
 }
 
 //discover all UPnP Devices
-$upnp = new Core();
+$upnp = new Upnp();
 $devices = $upnp->discover();
 
 print_r($devices);

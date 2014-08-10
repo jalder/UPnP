@@ -40,12 +40,13 @@ class Browse
             $doc = new \DOMDocument();
             $doc->loadXML($response);
             $containers = $doc->getElementsByTagName('container');
+            $items = $doc->getElementsByTagName('item');
             $directories = array();
             foreach($containers as $container){
                 //var_dump($container);
                 //var_dump($container->attributes);
                 foreach($container->attributes as $attr){
-                    //var_dump($attr);
+                   // var_dump($attr);
                     if($attr->name == 'id'){
                         $id = $attr->nodeValue;
                     }
@@ -53,11 +54,22 @@ class Browse
                 foreach($container->childNodes as $property){
                     //var_dump($property); //will need to do attributes to get id here as well
                     foreach($property->attributes as $attr){
-                        var_dump($attr);
+                        //var_dump($attr);
                     }
-                    $directories[$id][] = $property;
+                    $directories[$id][$property->nodeName] = $property->nodeValue;
                 }
             }
+            foreach($items as $item){
+                foreach($item->attributes as $attr){
+                    if($attr->name == 'id'){
+                        $id = $attr->nodeValue;
+                    }
+                }
+                foreach($item->childNodes as $property){
+                    $directories[$id][$property->nodeName] = $property->nodeValue;
+                }
+            }
+            
             var_dump($directories);
         }
 

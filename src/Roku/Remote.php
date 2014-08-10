@@ -9,6 +9,17 @@ class Remote
     public function __construct($location)
     {
         $this->location = $location;
+        if(is_array($location)){
+            if(isset($location['location'])){
+                $this->location = $location['location'];
+            }
+            else{
+                $last = array_pop($location);
+                if(isset($last['location'])){
+                     $this->location = $last['location'];
+                }
+            }
+        }
     }
 
     public function home()
@@ -98,9 +109,9 @@ class Remote
         return $channels;
     }
 
-    public function loadChannel($channel_id)
+    public function loadChannel($channel_id, $parameters = array())
     {
-        return $this->curl('launch/'.$channel_id);
+        return $this->curl('launch/'.$channel_id.'?'.http_build_query($parameters));
     }
 
     private function curl($request, $post = true)
@@ -115,5 +126,10 @@ class Remote
         $content = curl_exec($ch);
         curl_close($ch);
         return $content;
+    }
+
+    public function getLocation()
+    {
+        return $this->location;
     }
 }

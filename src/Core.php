@@ -5,10 +5,13 @@ namespace jalder\Upnp;
 class Core {
 
     private $user_agent;
+    public $cache;
 
     public function __construct()
     {
         $this->user_agent = '"Mozilla/5.0 UPnP/1.1 Jalder Upnp/0.0.1"';
+        $this->user_agent = 'PLAYSTATION 3';
+        $this->user_agent = 'Roku/DVP-5.5 (025.05E00410A)';
     }
     
     public function search($st = 'ssdp:all', $mx = 2, $man = 'ssdp:discover', $from = null, $port = null, $sockTimout = '2')
@@ -35,7 +38,7 @@ class Core {
             }
         } while(!is_null($buf));
         socket_close($socket);
-
+        $this->storeCache($response);
         return $response;
     }
 
@@ -100,6 +103,8 @@ class Core {
             'HOST: '.$hostIp.':'.$hostPort,
             'Connection: close',
             'Content-Length: ' . strlen($body),
+            'USER-AGENT: '.$this->user_agent, //fudge the user agent to get desired video format
+           // 'X-AV-Client-Info: PLAYSTATION 3',
         );
 
         $ch = curl_init();
@@ -126,5 +131,15 @@ class Core {
     {
         $url = parse_url($url);
         return $url['scheme'].'://'.$url['host'].':'.$url['port'];
+    }
+
+    private function storeCache($driver = 'file')
+    {
+        //file_put_contents cache
+    }
+
+    public function retrieveCache($driver = 'file')
+    {
+        //file_get_contents cache
     }
 }
