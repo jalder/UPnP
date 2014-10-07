@@ -22,7 +22,7 @@ class Browse
         }
         //else if is ctrlurl ready to go... maybe set
     }
-
+    //BrowseDirectChildren or BrowseMetadata
     public function browse($base = '0', $browseflag = 'BrowseDirectChildren', $start = 0, $count = 0)
     {
         libxml_use_internal_errors(true); //is this still needed?
@@ -39,6 +39,7 @@ class Browse
         if($response){
             $doc = new \DOMDocument();
             $doc->loadXML($response);
+            //var_dump($response);
             $containers = $doc->getElementsByTagName('container');
             $items = $doc->getElementsByTagName('item');
             $directories = array();
@@ -46,7 +47,7 @@ class Browse
                 //var_dump($container);
                 //var_dump($container->attributes);
                 foreach($container->attributes as $attr){
-                   // var_dump($attr);
+                  //  var_dump($attr);
                     if($attr->name == 'id'){
                         $id = $attr->nodeValue;
                     }
@@ -69,7 +70,7 @@ class Browse
                     $directories[$id][$property->nodeName] = $property->nodeValue;
                 }
             }
-            
+            return $directories;
             var_dump($directories);
         }
 
