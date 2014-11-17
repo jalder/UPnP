@@ -7,6 +7,8 @@
 
 namespace jalder\Upnp\Renderer;
 
+use jalder\Upnp;
+
 class Remote
 {
 
@@ -36,10 +38,18 @@ class Remote
 	public $ctrlurl;
 	private $upnp;
 
-	public function __construct($ctrlurl)
+	public function __construct($device)
 	{
-        $this->upnp = new Core();
-        $this->ctrlurl = $ctrlurl;
+        $this->upnp = new Upnp\Core();
+        $this->ctrlurl = $device;
+        if(is_array($device['description']['device']['serviceList']['service'])){
+            foreach($device['description']['device']['serviceList']['service'] as $service){
+                if($service['serviceId'] == 'urn:upnp-org:serviceId:AVTransport'){
+                    $this->ctrlurl = $this->upnp->baseUrl($device['location']).$service['controlURL'];
+                }
+            }
+        }
+
 	}
 
 	public function play($url)
@@ -52,7 +62,7 @@ class Remote
 		);
 		$response = $this->upnp->sendRequestToDevice('SetAVTransportURI',$args,$this->ctrlurl,$type = 'AVTransport');
 		$args = array('InstanceID'=>0,'Speed'=>1);
-		$this->upnp->sendRequestToDevice('Play',$args,$ctrlurl,$type = 'AVTransport');
+		$this->upnp->sendRequestToDevice('Play',$args,$this->ctrlurl,$type = 'AVTransport');
 		return $response;
 	}
 
