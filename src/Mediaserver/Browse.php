@@ -35,27 +35,20 @@ class Browse
             'SortCriteria'=>'',
         );
         $response = $this->upnp->sendRequestToDevice('Browse', $args, $this->ctrlurl, $type = 'ContentDirectory');
-
         if($response){
             $doc = new \DOMDocument();
             $doc->loadXML($response);
-            //var_dump($response);
             $containers = $doc->getElementsByTagName('container');
             $items = $doc->getElementsByTagName('item');
             $directories = array();
             foreach($containers as $container){
-                //var_dump($container);
-                //var_dump($container->attributes);
                 foreach($container->attributes as $attr){
-                  //  var_dump($attr);
                     if($attr->name == 'id'){
                         $id = $attr->nodeValue;
                     }
                 }
                 foreach($container->childNodes as $property){
-                    //var_dump($property); //will need to do attributes to get id here as well
                     foreach($property->attributes as $attr){
-                        //var_dump($attr);
                     }
                     $directories[$id][$property->nodeName] = $property->nodeValue;
                 }
@@ -67,21 +60,21 @@ class Browse
                     }
                 }
                 foreach($item->childNodes as $property){
+                    //some UPnP servers return multiple res for fanart and various video formats, let's parse out what we want
+                    if($property->nodeName === 'res'){
+                        $att_length = $property->attributes->length;
+                        for($i = 0; $i < $att_length; ++$i){
+                            if($property->attributes->item($i)->name === 'protocolInfo' && strpos($property->attributes->item($i)->value, 'video')){
+                                $directories[$id]['video'] = $property->nodeValue;
+                            }
+                        }
+                        
+                    }
                     $directories[$id][$property->nodeName] = $property->nodeValue;
                 }
             }
             return $directories;
-            var_dump($directories);
         }
-
         return false;
-        if(isset($response['body']['h1'])){
-            return false;
-        }
-        $returnd = $response['s:Body']['u:BrowseResponse']['NumberReturned'];
-        $total = $response['s:Body']['u:BrowseResponse']['TotalMatches'];
-        $result = $response['s:Body']['u:BrowseResponse']['Result'];
-        return $result;
     }
-
 }
