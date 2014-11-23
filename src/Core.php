@@ -38,7 +38,6 @@ class Core {
             }
         } while(!is_null($buf));
         socket_close($socket);
-        $this->storeCache($response);
         return $response;
     }
 

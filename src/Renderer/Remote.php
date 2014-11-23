@@ -52,8 +52,11 @@ class Remote
 
 	}
 
-	public function play($url)
-	{
+	public function play($url = "")
+    {
+        if($url === ""){
+            return self::unpause();
+        }
 		$args = array(
 			'InstanceID'=>0,
 			'CurrentURI'=>'<![CDATA['.$url.']]>',
@@ -152,6 +155,16 @@ class Remote
 	{
 		return $this->instanceOnly('Previous');
 	}
+
+    public function fforward()
+    {
+        return self::next();
+    }
+
+    public function rewind()
+    {
+        return self::previous();
+    }
 
 	public function seek($unit = 'TRACK_NR', $target=0)
 	{

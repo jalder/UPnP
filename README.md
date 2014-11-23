@@ -5,7 +5,13 @@ PHP Library for Interacting with UPnP Network Devices
 
 Composer PSR-4 compliant UPnP library.
 
-Work In Progress
+Work In Progress.
+
+### Description
+This library aims to be a convenient set of classes for controlling UPnP devices on a network. Some service specific classes for devices that leverage UPnP/SSDP may also be included such as the Roku (ecp and simplevideoplayer), Chromecast (castv2), XBMC (xbmc json api).
+
+### Installation
+
 
 ### Examples
 
@@ -15,7 +21,6 @@ $servers = $ms->discover();
 
 foreach($servers as $s){
     $browser = new Mediaserver\Browser($s);
-    //get root level directories
     $directories = $browser->browse();
 }
 
@@ -24,7 +29,6 @@ $renderers = $rs->discover();
 
 foreach($renderers as $r){
     $remote = new Renderer\Remote($r);
-    //control the renderer
     $remote->play();
 }
 
@@ -32,7 +36,6 @@ foreach($renderers as $r){
 $upnp = new Upnp();
 $devices = $upnp->discover();
 
-print_r($devices);
 ```
 
 Work In Progress.
