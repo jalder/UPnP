@@ -87,24 +87,25 @@ class Core {
     public function sendRequestToDevice($method, $arguments, $url, $type, $hostIp = '127.0.0.1', $hostPort = '80')
     {
         $body  ='<?xml version="1.0" encoding="utf-8"?>' . "\r\n";
-        $body .='<s:Envelope s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">' . "\r\n";
-        $body .='   <s:Body>' . "\r\n";
-        $body .='      <u:'.$method.' xmlns:u="urn:schemas-upnp-org:service:'.$type.':1">' . "\r\n";
+        $body .='<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">';
+        $body .='<s:Body>';
+        $body .='<u:'.$method.' xmlns:u="urn:schemas-upnp-org:service:'.$type.':1">';
         foreach( $arguments as $arg=>$value ) {
-            $body .='         <'.$arg.'>'.$value.'</'.$arg.'>' . "\r\n";
+            $body .='<'.$arg.'>'.$value.'</'.$arg.'>';
         }
-        $body .='      </u:'.$method.'>' . "\r\n";
-        $body .='   </s:Body>' . "\r\n";
-        $body .='</s:Envelope>' . "\r\n\r\n";
-
+        $body .='</u:'.$method.'>';
+        $body .='</s:Body>';
+        $body .='</s:Envelope>';
+ 
         $header = array(
-            'SOAPACTION: "urn:schemas-upnp-org:service:'.$type.'#'.$method,
-            'CONTENT-TYPE: text/xml ; charset="utf-8"',
-            'HOST: '.$hostIp.':'.$hostPort,
+            'SOAPAction: "urn:schemas-upnp-org:service:'.$type.':1#'.$method.'"',
+            'Content-Type: text/xml; charset="utf-8"',
+            'Host: '.$hostIp.':'.$hostPort,
             'Connection: close',
+            'Accept-Language: en-us;q=1, en;q=0.5',
+            'Accept-Encoding: gzip',
+            'User-Agent: '.$this->user_agent, //fudge the user agent to get desired video format
             'Content-Length: ' . strlen($body),
-            'USER-AGENT: '.$this->user_agent, //fudge the user agent to get desired video format
-           // 'X-AV-Client-Info: PLAYSTATION 3',
         );
 
         $ch = curl_init();
@@ -116,7 +117,7 @@ class Core {
         curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
         $response = curl_exec( $ch );
         curl_close( $ch );
-        
+
         $doc = new \DOMDocument();
         $doc->loadXML($response);
         $result = $doc->getElementsByTagName('Result');
@@ -131,15 +132,5 @@ class Core {
     {
         $url = parse_url($url);
         return $url['scheme'].'://'.$url['host'].':'.$url['port'];
-    }
-
-    private function storeCache($driver = 'file')
-    {
-        //file_put_contents cache
-    }
-
-    public function retrieveCache($driver = 'file')
-    {
-        //file_get_contents cache
     }
 }
