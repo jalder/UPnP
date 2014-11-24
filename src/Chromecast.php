@@ -24,10 +24,10 @@ class Chromecast extends Core
         return $results;
     }
 
-    public function connect()
+    public function connect($server)
     {
         $context = stream_context_create(); 
-        $socket = stream_socket_client('tls://192.168.1.102:8009', $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
+        $socket = stream_socket_client($server, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
         var_dump($socket);
         var_dump($errno);
         var_dump($errstr);
@@ -167,7 +167,6 @@ class Chromecast extends Core
             'contentType'=>'video/mp4',
             'streamType'=>'BUFFERED'
         );
-        $media_params['contentId'] = 'http://192.168.1.20:49152/content/media/object_id/6769/res_id/0/ext/file.mp4';
         $params = array(
             'requestId'=>1,
             'type'=>'LOAD',
