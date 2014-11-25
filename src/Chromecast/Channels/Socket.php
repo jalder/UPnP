@@ -1,31 +1,21 @@
 <?php
 
-namespace jalder\Upnp;
+namespace jalder\Upnp\Chromecast\Channels;
 
-require(dirname(__FILE__).'/Chromecast/pb_proto_message.php');
+require_once(dirname(__FILE__).'/../pb_proto_message.php');
 
-class Chromecast extends Core
+class Socket
 {
+    private $sessionId;
+    private $mediaSessionId;
+    private $socket;
 
-    public function discover()
+    public function __construct()
     {
-        return parent::search('urn:dial-multiscreen-org:device:dial:1');
+
     }
 
-    public function filter($results = array())
-    {
-        if(is_array($results)){
-            foreach($results as $usn=>$device){
-                if($device['st'] !== 'urn:dial-multiscreen-org:device:dial:1'){
-                    unset($results[$usn]);
-                }
-            }
-        }
-        return $results;
-    }
-
-    //moving all socket connections to a Channels\Socket class
-    public function connect($server, $url = '')
+    public function connect($server, $url = '', $options = array())
     {
         $context = stream_context_create(); 
         $socket = stream_socket_client($server, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
@@ -55,8 +45,9 @@ class Chromecast extends Core
         $msg = ''; 
         $takeaction = false;
         $loadit = true;
+        $closeit = false;
         self::launch($message, $socket);
-        while (!feof($socket))
+        while (!feof($socket) && !$closeit)
         {
 
             if(!is_array($msg_length)){
@@ -88,19 +79,35 @@ class Chromecast extends Core
 
                 if($replies->getPayloadUtf8()&&$takeaction){
                     if($payload = json_decode($replies->getPayloadUtf8())){
+                        var_dump($payload);
                         if(isset($payload->type)){
                             if($payload->type == 'PING' && $replies->getDestinationId()!='receiver-0'){
                                 self::pong($message, $socket);
                             }
                             if($payload->type === 'RECEIVER_STATUS' && isset($payload->status->applications[0])){
                                 var_dump('obtaining your app-id');
+                                //var_dump($payload->status->applications);
                                 $appId = $payload->status->applications[0]->transportId;
+                                $this->sessionId = $payload->status->applications[0]->sessionId;
                                 var_dump($appId);
-                                self::init($message, $socket, $appId);
                                 if($loadit){
+                                    self::init($message, $socket, $appId);
                                     $loadit = false;
-                                    sleep(4);
+                                    //sleep(4);
                                     self::load($message, $socket, $appId, array('url'=>$url));
+                                }
+                            }
+                            if($payload->type === 'MEDIA_STATUS'){
+                                var_dump('obtaining your media session id');
+                                $this->mediaSessionId = $payload->status[0]->mediaSessionId;
+                                
+                                if($payload->status[0]->playerState === 'PLAYING'){
+                                    if(isset($appId)){
+                                        //self::close($message, $socket, $appId);
+                                    }
+                                    //self::close($message, $socket);
+                                    $closeit = true;
+                                    var_dump('trying to close early, mission accomplished'); 
                                 }
                             }
                         }
@@ -119,7 +126,7 @@ class Chromecast extends Core
                 self::ping($message, $socket);
                 $heartbeat = time();
             }
-            if(date('U') > $now + 20){
+            if(date('U') > $now + 30){
                 if(isset($appId)){
                     self::close($message, $socket, $appId);
                 }
@@ -223,9 +230,16 @@ class Chromecast extends Core
         $message->setNamespace($nm);
         $message->setDestinationId($destination);
         $message->setPayloadUtf8('{"type":"MEDIA_STATUS"}');
+        switch($nm){
+            case 'urn:x-cast:com.google.cast.media':
+                $message->setPayloadUtf8('{"type":"GET_STATUS","requestId":0,"mediaSessionId":"'.$this->mediaSessionId.'"}');
+            break;
+        }   
+
         $packed = $message->serializeToString();
         $length = pack('N',strlen($packed));
         $message->dump();
         fwrite($socket, $length.$packed);
     }
+
 }
