@@ -3,17 +3,28 @@ PHP UPnP Library
 PHP Library for Interacting with UPnP Network Devices
 -----------------------------------------------------
 
-Composer PSR-4 compliant UPnP library.
-
-Work In Progress.
+###Work In Progress.
 
 ### Description
-This library aims to be a convenient set of classes for controlling UPnP devices on a network. Some service specific classes for devices that leverage UPnP/SSDP may also be included such as the Roku (ecp and simplevideoplayer), Chromecast (castv2), XBMC (xbmc json api).
+This library aims to be a convenient set of classes for controlling UPnP devices on a network. Some service specific classes for devices that leverage UPnP/SSDP may also be included such as the Roku (ecp and simplevideoplayer), Chromecast (castv2), XBMC (xbmc json api).  Any device that can be discovered via SSDP will be considered for inclusion.  Should mDNS be implemented in the future, package name may be changed to better reflect its role/purpose.
+
+### Requirements
+PHP Procotocl Buffer modules needs to be compiled and installed in your environment for communicating protobuf binary messages with chromecasts.  This is only needed for controlling Chromecasts, module can be ignored for pure UPnP implementations or when using other supported devices.
 
 ### Installation
+Package is composer compliant using PSR-4 autoloader.
 
+```
+{
+    "require": {
+        "jalder/upnp": "*"
+    }
+}
+```
 
 ### Examples
+
+##### UPnP Mediaserver Browsing
 
 ```
 $ms = new Mediaserver();
@@ -24,22 +35,61 @@ foreach($servers as $s){
     $directories = $browser->browse();
 }
 
+```
+##### UPnP Renderer Control
+
+```
 $rs = new Renderer();
 $renderers = $rs->discover();
 
 foreach($renderers as $r){
     $remote = new Renderer\Remote($r);
-    $remote->play();
+    $remote->play();  //or $remote->play($url); to start playing a video
 }
 
-//discover all UPnP Devices
+```
+##### Discover all UPnP devices
+
+```
 $upnp = new Upnp();
 $devices = $upnp->discover();
+print_r($devices);
+
+```
+##### Roku Devices
+
+```
+$rokus = new Roku();
+
+foreach($rokus->discover() as $roku){
+    $remote = new Roku\Remote($roku);
+    $remote->play(); //all ECP buttons are supported, play (toggle), okay, back, home, dPad, forward, rewind, launch app
+    $remote->play($url);  //if the simplevideoplayer example app is sideloaded on your roku, you can automatically launch playback of videos as well. Use case often involves starting playback of a video item discovered with the Mediaserver methods.
+}
+
+```
+##### Chromecast Devices
+
+```
+$chromecasts = new Chromecast();
+
+foreach($chromecasts->discover as $chromecast){
+    $remote = new Chromecast\Remote($chromecast);
+    $remote->play($url);  //will start playback of video using the default media receiver chromecast application.
+}
 
 ```
 
-Work In Progress.
+###Credits & Acknowledgements
+phpupnp.class.php from artheus/PHP-UPnP, working example of using sockets in PHP for SSDP.
+
+Protocol description https://github.com/thibauts/node-castv2#protocol-description written by thibauts.
+
+PHP implementation of Google's Protocol Buffer by allegro for encoding chromecast communication payloads in allegro/php-protobuf.
+
+###Work In Progress.
 
 http://jalder.com
 
-LICENSE: MIT
+###LICENSE 
+MIT
