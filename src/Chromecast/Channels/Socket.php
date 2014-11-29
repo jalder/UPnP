@@ -14,6 +14,7 @@ class Socket
     private $ns_heartbeat = 'urn:x-cast:com.google.cast.tp.heartbeat';
     private $ns_media = 'urn:x-cast:com.google.cast.media';
     private $ns_connect = 'urn:x-cast:com.google.cast.tp.connection';
+    private $ns_receiver = 'urn:x-cast:com.google.cast.receiver';
     private $mode = 'die';
     private $sourceId = 'sender-0';
     private $destinationId = 'receiver-0';
@@ -54,120 +55,6 @@ class Socket
         $this->mode = $mode;
     }
 
-    public function connect($server, $url = '', $options = array())
-    {
-        $context = stream_context_create(); //consider removing
-        $this->socket = $socket = stream_socket_client($server, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
-
-        $source_id = 'sender-0';
-        $destination_id = 'receiver-0';
-        $namespace = 'urn:x-cast:com.google.cast.tp.connection';
-        $payload_utf8 = json_encode(array('type'=>'CONNECT'));
-
-        $this->message = $message = new \CastMessage();  //protobuf for outgoing
-        $this->replies = $replies = new \CastMessage();  //protobuf for incoming
-        $message->setNamespace($namespace);
-        $message->setProtocolVersion('CASTV2_1_0');  //0
-        $message->setSourceId($source_id);
-        $message->setDestinationId($destination_id);
-        $message->setPayloadType('STRING');  //0
-        $message->setPayloadUtf8($payload_utf8);
-        self::init($message, $socket);
-        $now = date('U');
-        $heartbeat = $now;
-        $status = false;
-        $msg_length = false;
-        $msg = ''; 
-        $takeaction = false;
-        $loadit = true;
-        $closeit = false;
-        self::launch($message, $socket);
-        while (!feof($socket) && ($this->mode === 'daemon' || ($this->mode !== 'daemon' && $this->lastMessageStatus !== 'complete')))
-        {
-
-            if(!is_array($msg_length)){
-                $msg = $msg.fread($socket, 1);
-                $hex = bin2hex($msg);
-                if(strlen($msg) == 4){
-           
-                    $msg_length = unpack('N', $msg);
-                    $msg = '';
-                }
-            }
-            if(is_array($msg_length)){
-                $length = $msg_length[1];
-                $msg = $msg.fread($socket, 1);
-                if(strlen($msg) === $length){
-                    $takeaction = true;
-                    $msg_length = 0;
-                    $length = 0;
-                    try {
-                        $replies->parseFromString($msg);
-                        self::addReply($replies->getPayloadUtf8());
-                        $replies->dump();
-                    } catch (\Exception $ex) {
-                        //die('Parse error: ' . $e->getMessage());
-                    }
-
-                    $msg = '';
-                }
-
-                if($replies->getPayloadUtf8()&&$takeaction){
-                    if($payload = json_decode($replies->getPayloadUtf8())){
-                        var_dump($payload);
-                        if(isset($payload->type)){
-                            if($payload->type == 'PING' && $replies->getDestinationId()!='receiver-0'){
-                                self::pong($message, $socket);
-                            }
-                            if($payload->type === 'RECEIVER_STATUS' && isset($payload->status->applications[0])){
-                                var_dump('obtaining your app-id');
-                                //var_dump($payload->status->applications);
-                                $appId = $payload->status->applications[0]->transportId;
-                                $this->sessionId = $payload->status->applications[0]->sessionId;
-                                var_dump($appId);
-                                if($loadit){
-                                    self::init($message, $socket, $appId);
-                                    $loadit = false;
-                                    //sleep(4);
-                                    self::load($message, $socket, $appId, array('url'=>$url));
-                                }
-                            }
-                            if($payload->type === 'MEDIA_STATUS'){
-                                var_dump('obtaining your media session id');
-                                $this->mediaSessionId = $payload->status[0]->mediaSessionId;
-                                
-                                if($payload->status[0]->playerState === 'PLAYING'){
-                                    $this->lastMessageStatus = 'complete';
-                                }
-                            }
-                        }
-                    }
-                    $takeaction = false;
-                }
-                else{
-                    $payload = array();
-                }
-                
-            }
-            if((time() - $heartbeat) > 4){
-                //if(isset($appId)){
-                //    self::status($message, $socket, $appId, 'urn:x-cast:com.google.cast.media');
-                //}    
-                self::ping();
-                $heartbeat = time();
-            }
-            if(date('U') > $now + 30){
-                if(isset($appId)){
-                    //self::close($message, $socket, $appId);
-                }
-                //self::close($message, $socket);
-                die('ran out of time');
-            }
-            self::checkReply();
-        }
-        fclose($socket);
-    }
-
     public function execute($wait_on = 'MEDIA_STATUS')
     {
         $payload_utf8 = json_encode(array('type'=>'CONNECT'));
@@ -178,6 +65,7 @@ class Socket
         $this->message->setPayloadType('STRING');  //0
         //$this->message->setPayloadUtf8($payload_utf8);
         self::init($this->message, $this->socket);
+        self::status($this->message,$this->socket);
         $now = date('U');
         $heartbeat = $now;
         $status = false;
@@ -186,6 +74,7 @@ class Socket
         $takeaction = false;
         $loadit = true;
         $closeit = false;
+        //self::writeQueue('CONNECT');
         while (!feof($this->socket) && ($this->mode === 'daemon' || ($this->mode !== 'daemon' && $this->lastMessageStatus !== 'complete')))
         {
 
@@ -225,22 +114,31 @@ class Socket
                             }
                             if($payload->type === 'RECEIVER_STATUS' && isset($payload->status->applications[0])){
                                 var_dump('obtaining your app-id');
-                                $appId = $payload->status->applications[0]->transportId;
-                                $this->sessionId = $payload->status->applications[0]->sessionId;
-                                var_dump($appId);
-                                if($loadit){
-                                    self::init($this->message, $this->socket, $appId);
+                                //if(($appId = $payload->status->applications[0]->transportId) !== null){
+                                    $this->appId = $appId = $payload->status->applications[0]->transportId;
+                                    $this->sessionId = $payload->status->applications[0]->sessionId;
+                                    var_dump($appId);
+                                //}
+                                if($loadit && $payload->status->applications[0]->appId === 'CC1AD845'){
+                                    self::init($this->message, $this->socket, $this->appId);
+                                    self::status($this->message, $this->socket, $appId, 'urn:x-cast:com.google.cast.media');
                                     $loadit = false;
+                                    //self::writeQueue('RECEIVER_STATUS');
+                                    self::writeQueue('RECEIVER_STATUS');
+                                    $this->lastMessage = 'complete';
+                                }
+                                if($payload->status->applications[0]->appId !== 'CC1AD845'){
+                                    self::writeQueue('CONNECT');
                                 }
                             }
                             if($payload->type === 'MEDIA_STATUS'){
                                 var_dump('obtaining your media session id');
                                 $this->appId = $appId;
                                 var_dump($payload);
-                                if(isset($payload->status[0]->mediaSessionId) && $wait_on === 'MEDIA_STATUS')
+                                if(isset($payload->status[0]->mediaSessionId))
                                 {
                                     $this->mediaSessionId = $payload->status[0]->mediaSessionId;
-                                    self::writeQueue();
+                                    self::writeQueue('MEDIA_STATUS');
                                 }
                             }
                         }
@@ -253,9 +151,9 @@ class Socket
             }
             if((time() - $heartbeat) > 4){
                 if(isset($appId)){
-                    self::status($this->message, $this->socket, $appId, 'urn:x-cast:com.google.cast.media');
+                    //self::status($this->message, $this->socket, $appId, 'urn:x-cast:com.google.cast.media');
                 }
-                self::status($this->message,$this->socket);    
+                //self::status($this->message,$this->socket);    
                 self::ping();
                 $heartbeat = time();
             }
@@ -268,27 +166,29 @@ class Socket
     }
 
 
-    private function writeQueue()
+    private function writeQueue($queue = 'MEDIA_STATUS')
     {
-        //if(!$this->socket){
-        //    $this->socket = self::connect($this->host);
-        //}
-        //$this->socket = self::connect($this->host);
         var_dump('writing out message queue to socket');
         var_dump($this->messageQueue);
-        foreach($this->messageQueue as $id=>$message){
-            if(isset($this->mediaSessionId)){
-                $message['mediaSessionId'] = $this->mediaSessionId;
-                $this->message->setNamespace($this->ns_media);
-                $this->message->setDestinationId($this->appId);
-                //$this->message->setPayloadUtf8(json_encode($message));
+        if(isset($this->messageQueue[$queue])){
+            foreach($this->messageQueue[$queue] as $id=>$message){
+                switch($queue){
+                    case 'CONNECT':
+                        $this->message->setNamespace($this->ns_receiver);
+                        break;
+                    case 'RECEIVER_STATUS':
+                        $this->message->setNamespace($this->ns_media);
+                        $this->message->setDestinationId($this->appId);
+                        break;
+                    case 'MEDIA_STATUS':
+                        $message['mediaSessionId'] = $this->mediaSessionId;
+                        $this->message->setNamespace($this->ns_media);
+                        $this->message->setDestinationId($this->appId);
+                        break;
+                }
                 self::writeMessage($message);
-                unset($this->messageQueue[$id]);
+                unset($this->messageQueue[$queue][$id]);
             }
-            //$packed = $this->message->serializeToString();
-            //$length = pack('N',strlen($packed));
-            //$this->message->dump();
-            //fwrite($this->socket, $length.$packed);
         }
     }
 
@@ -302,16 +202,20 @@ class Socket
  
     }
 
-    public function addMessage($message)
+    public function addMessage($message, $execute = true)
     {
-        $this->messageQueue[] = $message;
-        //if(isset($message['mediaSessionId'])){
-            //$message['mediaSessionId'] = $this->mediaSessionId;
-            //$this->message->setNamespace($ns_media);
-            //$this->message->setPayloadUtf8(json_encode($message));
-            //self::writeMessage();
-            self::execute('MEDIA_STATUS');
-        //}
+        if($message['type'] === 'LAUNCH'){
+            $this->messageQueue['CONNECT'][] = $message;
+        }
+        else if($message['type'] === 'LOAD'){
+            $this->messageQueue['RECEIVER_STATUS'][] = $message;
+        }
+        else{
+            $this->messageQueue['MEDIA_STATUS'][] = $message;
+        }
+        if($execute){
+            self::execute();
+        }
     }
 
     private function addReply($reply)
@@ -332,7 +236,6 @@ class Socket
     {
         $this->message->setDestinationId('receiver-0');
         $this->message->setNamespace($this->ns_heartbeat);
-        $this->message->setPayloadUtf8('{"type": "PING"}');
         $this->writeMessage(array('type'=>'PING'));
     }
 
@@ -340,50 +243,7 @@ class Socket
     {
         $this->message->setDestinationId('receiver-0');
         $this->message->setNamespace($this->ns_heartbeat);
-        $this->message->setPayloadUtf8('{"type": "PONG"}');
         $this->writeMessage(array('type'=>'PONG'));
-    }
-
-    public function launch($message, $socket, $url = "")
-    {
-        $message->setNamespace('urn:x-cast:com.google.cast.receiver');
-        $message->setPayloadUtf8('{"type":"LAUNCH","appId":"CC1AD845","requestId":1}');
-        $packed = $message->serializeToString();
-        $length = pack('N',strlen($packed));
-        fwrite($socket, $length.$packed);
-    }
-
-    public function load($message, $socket, $destination, $params = array())
-    {
-        $message->setNamespace('urn:x-cast:com.google.cast.media');
-        $message->setDestinationId($destination);
-        $media_params = array(
-            'contentId'=>'https://commondatastorage.googleapis.com/gtv-videos-bucket/big_buck_bunny_1080p.mp4',
-            'contentType'=>'video/mp4',
-            'streamType'=>'BUFFERED'
-        );
-        if(isset($params['url'])){
-            $media_params['contentId'] = $params['url'];
-        }
-        $params = array(
-            'requestId'=>1,
-            'type'=>'LOAD',
-            'media'=>$media_params,
-            'autoplay'=>true
-        );
-        $message->setPayloadUtf8(json_encode($params));
-        $packed = $message->serializeToString();
-        $length = pack('N',strlen($packed));
-        fwrite($socket, $length.$packed);
-    }
-
-    public function youtube($message, $socket)
-    {
-        $message->setNamespace('urn:x-cast:com.google.cast.receiver');
-        $message->setPayloadUtf8('{"type":"LAUNCH","appId":"YouTube","requestId":1}');
-        $packed = $message->serializeToString();
-        $length = pack('N',strlen($packed));
-        fwrite($socket, $length.$packed);
     }
 
     public function init($message, $socket, $destination = 'receiver-0')
