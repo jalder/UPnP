@@ -9,33 +9,34 @@ class Socket
     private $sessionId;
     private $mediaSessionId;
     private $socket;
+    private $messages;
+    private $replies;
+    private $ns_heartbeat = 'urn:x-cast:com.google.cast.tp.heartbeat';
 
-    public function __construct()
+    public function __construct($host = '')
     {
-
+        if($host !== ''){
+            $this->host = $host;
+        }
     }
 
     public function connect($server, $url = '', $options = array())
     {
-        $context = stream_context_create(); 
+        $context = stream_context_create(); //consider removing
         $socket = stream_socket_client($server, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
-        var_dump($socket);
-        var_dump($errno);
-        var_dump($errstr);
 
-        $protocol_version = array('CASTV2_1_0'=> 0);
-        $source_id = 'client-1112';
+        $source_id = 'sender-0';
         $destination_id = 'receiver-0';
         $namespace = 'urn:x-cast:com.google.cast.tp.connection';
         $payload_utf8 = json_encode(array('type'=>'CONNECT'));
 
-        $message = new \CastMessage();
-        $replies = new \CastMessage();
+        $this->message = $message = new \CastMessage();  //protobuf for outgoing
+        $this->replies = $replies = new \CastMessage();  //protobuf for incoming
         $message->setNamespace($namespace);
-        $message->setProtocolVersion('CASTV2_1_0');
+        $message->setProtocolVersion('CASTV2_1_0');  //0
         $message->setSourceId($source_id);
         $message->setDestinationId($destination_id);
-        $message->setPayloadType('STRING');
+        $message->setPayloadType('STRING');  //0
         $message->setPayloadUtf8($payload_utf8);
         self::init($message, $socket);
         $now = date('U');
@@ -75,7 +76,6 @@ class Socket
 
                     $msg = '';
                 }
- 
 
                 if($replies->getPayloadUtf8()&&$takeaction){
                     if($payload = json_decode($replies->getPayloadUtf8())){
@@ -138,10 +138,22 @@ class Socket
         fclose($socket);
     }
 
+    private function _writeMessage()
+    {
+        $packed = $this->message->serializeToString();
+        $length = pack('N',strlen($packed));
+        fwrite($this->socket, $length.$packed);
+    }
+
     public function ping($message, $socket)
     {
         $message->setNamespace('urn:x-cast:com.google.cast.tp.heartbeat');
         $message->setPayloadUtf8('{"type": "PING"}');
+        /**
+         * $this->message->setNamespace($ns_heartbeat);
+         * $this->message->setPayloadUtf8('{"type": "PING"}');
+         * $this->_writeMessage();
+         */
         $packed = $message->serializeToString();
         $length = pack('N',strlen($packed));
         fwrite($socket, $length.$packed);
@@ -188,7 +200,6 @@ class Socket
         $packed = $message->serializeToString();
         $length = pack('N',strlen($packed));
         fwrite($socket, $length.$packed);
-        $message->dump();
     }
 
     public function youtube($message, $socket)
