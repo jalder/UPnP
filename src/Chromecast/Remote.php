@@ -45,7 +45,7 @@ class Remote
             'requestId'=>1,
             'type'=>'PLAY'
         );
-        $this->channel->addMessage($this->destinationId, $message);
+        $this->channel->addMessage($message);
     }
 
     public function pause()
