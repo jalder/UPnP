@@ -8,6 +8,8 @@ class Remote
     private $message;
     private $socket;
     private $channel;
+    private $mediaSessionId;
+    private $destinationId;
 
     public function __construct($device)
     {
@@ -23,7 +25,7 @@ class Remote
         if($this->host === ""){
             return false; //host not set, consider throwing exception here
         }
-        $this->channel = new Channels\Socket();
+        $this->channel = new Channels\Socket($this->host, 'die');
     }
 
     public function play($url = "", $autoplay = true, $position = false)
@@ -38,12 +40,23 @@ class Remote
     
     public function unPause()
     {
-
+        $message = array(
+            'mediaSessionId'=>$this->mediaSessionId,
+            'requestId'=>1,
+            'type'=>'PLAY'
+        );
+        $this->channel->addMessage($this->destinationId, $message);
     }
 
     public function pause()
     {
-
+        $message = array(
+            'mediaSessionId'=>$this->mediaSessionId,
+            'requestId'=>1,
+            'type'=>'PAUSE'
+        );
+        $this->channel->addMessage($message);
+ 
     }
 
     public function load($url, $autoplay = true, $position = false)
