@@ -15,10 +15,12 @@ foreach ($files as $file) {
 
 if (!$found) {
     die(
-      'Composer autoload not found:' . PHP_EOL .
+      'Composer autoload not found:' . PHP_EOL 
     );
 }
 
-$cc = new \jalder\Upnp\Chromecast\Console();
+$host = $argv[1];
+
+$cc = new \jalder\Upnp\Chromecast\Console($host);
 $cc->run();
 

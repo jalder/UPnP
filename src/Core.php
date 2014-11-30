@@ -132,4 +132,9 @@ class Core {
         $url = parse_url($url);
         return $url['scheme'].'://'.$url['host'].':'.$url['port'];
     }
+
+    public function setUserAgent($agent)
+    {
+        $this->user_agent = $agent;
+    }
 }

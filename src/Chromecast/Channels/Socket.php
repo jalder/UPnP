@@ -157,7 +157,7 @@ class Socket
                 self::ping();
                 $heartbeat = time();
             }
-            if(date('U') > $now + 30){
+            if((date('U') > ($now + 30)) && $this->mode !== 'daemon'){
                 die('execute ran out of time');
             }
             //self::checkReply();
