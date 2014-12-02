@@ -13,14 +13,19 @@ foreach ($files as $file) {
     }
 }
 
-if (!$found) {
+if (!$found){
     die(
-      'Composer autoload not found:' . PHP_EOL 
+      'Composer autoload not found:'.PHP_EOL 
     );
 }
 
-$host = $argv[1];
-
-$cc = new \jalder\Upnp\Chromecast\Console($host);
-$cc->run();
-
+if(isset($argv[1])){
+    $host = $argv[1];
+    $cc = new \jalder\Upnp\Chromecast\Console($host);
+    $cc->run();
+}
+else{
+    die(
+        'host argument is missing'.PHP_EOL
+    );
+}

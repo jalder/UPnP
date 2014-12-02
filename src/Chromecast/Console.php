@@ -13,10 +13,7 @@ class Console
 
     public function run()
     {
-        print('welcome to the cli');
-        //start socket connection
-        $socket = new Channels\Socket($this->host, 'daemon');
+        $socket = new Channels\Socket($this->host, 'daemon', $verbosity = 5);
         $socket->execute();
-        //read from redis queue and take action on new tasks
     }
 }
