@@ -75,101 +75,102 @@ class Socket
         $closeit = false;
 
         if($this->socket){
-        while (!feof($this->socket) && ($this->mode === 'daemon' || ($this->mode !== 'daemon' && $this->lastMessageStatus !== 'complete')))
-        {
+            $this->status();
+            while (!feof($this->socket) && ($this->mode === 'daemon' || ($this->mode !== 'daemon' && $this->lastMessageStatus !== 'complete')))
+            {
 
-            if(!is_array($msg_length)){
-                $msg = $msg.fread($this->socket, 1);
-                $hex = bin2hex($msg);
-                if(strlen($msg) == 4){
-           
-                    $msg_length = unpack('N', $msg);
-                    $msg = '';
-                }
-            }
-            if(is_array($msg_length)){
-                $length = $msg_length[1];
-                $msg = $msg.fread($this->socket, 1);
-                if(strlen($msg) === $length){
-                    $takeaction = true;
-                    $msg_length = 0;
-                    $length = 0;
-                    try {
-                        $this->replies->parseFromString($msg);
-                        $this->addReply($this->replies->getPayloadUtf8());
-                        $this->replies->dump();
-                    } catch (\Exception $ex) {
-                        //die('Parse error: ' . $e->getMessage());
-                    }
-
-                    $msg = '';
-                }
-
-                if($this->replies->getPayloadUtf8()){
-                    if($payload = json_decode($this->replies->getPayloadUtf8())){
-                        if($this->verbosity > 0){
-                            var_dump($payload);
-                        }
-                        if(isset($payload->type)){
-                            if($payload->type == 'PING' && $this->replies->getDestinationId()!='receiver-0'){
-                                $this->pong();
-                            }
-                            if($payload->type === 'RECEIVER_STATUS' && isset($payload->status->applications[0])){
-                                //var_dump('obtaining your app-id');
-                                //if(($appId = $payload->status->applications[0]->transportId) !== null){
-                                    $this->appId = $appId = $payload->status->applications[0]->transportId;
-                                    $this->sessionId = $payload->status->applications[0]->sessionId;
-                                    //var_dump($appId);
-                                //}
-                                if($loadit && $payload->status->applications[0]->appId === 'CC1AD845'){
-                                    $this->init($this->appId);
-                                    $this->status($appId, 'urn:x-cast:com.google.cast.media');
-                                    $loadit = false;
-                                    //self::writeQueue('RECEIVER_STATUS');
-                                    $this->writeQueue('RECEIVER_STATUS');
-                                    $this->lastMessage = 'complete';
-                                }
-                                if($payload->status->applications[0]->appId !== 'CC1AD845'){
-                                    $this->writeQueue('CONNECT');
-                                }
-                            }
-                            if($payload->type === 'MEDIA_STATUS'){
-                                //var_dump('obtaining your media session id');
-                                $this->appId = $appId;
-                                //var_dump($payload);
-                                if(isset($payload->status[0]->mediaSessionId))
-                                {
-                                    $this->mediaSessionId = $payload->status[0]->mediaSessionId;
-                                    $this->writeQueue('MEDIA_STATUS');
-                                }
-                            }
-                            if($payload->type === 'CLOSE'){
-                                die('receiver kicked us out');
-                            }
-                        }
+                if(!is_array($msg_length)){
+                    $msg = $msg.fread($this->socket, 1);
+                    $hex = bin2hex($msg);
+                    if(strlen($msg) == 4){
+               
+                        $msg_length = unpack('N', $msg);
+                        $msg = '';
                     }
                 }
-                else{
-                    $payload = array();
+                if(is_array($msg_length)){
+                    $length = $msg_length[1];
+                    $msg = $msg.fread($this->socket, 1);
+                    if(strlen($msg) === $length){
+                        $takeaction = true;
+                        $msg_length = 0;
+                        $length = 0;
+                        try {
+                            $this->replies->parseFromString($msg);
+                            $this->addReply($this->replies->getPayloadUtf8());
+                            $this->replies->dump();
+                        } catch (\Exception $ex) {
+                            //die('Parse error: ' . $e->getMessage());
+                        }
+
+                        $msg = '';
+                    }
+
+                    if($this->replies->getPayloadUtf8()){
+                        if($payload = json_decode($this->replies->getPayloadUtf8())){
+                            if($this->verbosity > 0){
+                                var_dump($payload);
+                            }
+                            if(isset($payload->type)){
+                                if($payload->type == 'PING' && $this->replies->getDestinationId()!='receiver-0'){
+                                    $this->pong();
+                                }
+                                if($payload->type === 'RECEIVER_STATUS' && isset($payload->status->applications[0])){
+                                    //var_dump('obtaining your app-id');
+                                    //if(($appId = $payload->status->applications[0]->transportId) !== null){
+                                        $this->appId = $appId = $payload->status->applications[0]->transportId;
+                                        $this->sessionId = $payload->status->applications[0]->sessionId;
+                                        //var_dump($appId);
+                                    //}
+                                    if($loadit && $payload->status->applications[0]->appId === 'CC1AD845'){
+                                        $this->init($this->appId);
+                                        $this->status($appId, 'urn:x-cast:com.google.cast.media');
+                                        $loadit = false;
+                                        //self::writeQueue('RECEIVER_STATUS');
+                                        $this->writeQueue('RECEIVER_STATUS');
+                                        $this->lastMessage = 'complete';
+                                    }
+                                    if($payload->status->applications[0]->appId !== 'CC1AD845'){
+                                        $this->writeQueue('CONNECT');
+                                    }
+                                }
+                                if($payload->type === 'MEDIA_STATUS'){
+                                    //var_dump('obtaining your media session id');
+                                    $this->appId = $appId;
+                                    //var_dump($payload);
+                                    if(isset($payload->status[0]->mediaSessionId))
+                                    {
+                                        $this->mediaSessionId = $payload->status[0]->mediaSessionId;
+                                        $this->writeQueue('MEDIA_STATUS');
+                                    }
+                                }
+                                if($payload->type === 'CLOSE'){
+                                    die('receiver kicked us out');
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        $payload = array();
+                    }
+                    
                 }
-                
+                if((date('U') - $heartbeat) > 4){
+                    $this->ping();
+                    //if(isset($this->appId)){
+                    //    self::status($this->message, $this->socket, $appId, 'urn:x-cast:com.google.cast.media');
+                    //}
+                    //self::status($this->message,$this->socket);    
+                    //self::ping();
+                    $heartbeat = date('U');
+                    //var_dump($heartbeat); 
+                }
+                if((date('U') > ($now + 30)) && $this->mode !== 'daemon'){
+                    die('execute ran out of time');
+                }
+                //self::checkReply();
             }
-            if((date('U') - $heartbeat) > 4){
-                $this->ping();
-                //if(isset($this->appId)){
-                //    self::status($this->message, $this->socket, $appId, 'urn:x-cast:com.google.cast.media');
-                //}
-                //self::status($this->message,$this->socket);    
-                //self::ping();
-                $heartbeat = date('U');
-                //var_dump($heartbeat); 
-            }
-            if((date('U') > ($now + 30)) && $this->mode !== 'daemon'){
-                die('execute ran out of time');
-            }
-            //self::checkReply();
-        }
-        fclose($this->socket);
+            fclose($this->socket);
         }
     }
 
