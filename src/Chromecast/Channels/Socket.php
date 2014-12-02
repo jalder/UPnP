@@ -246,14 +246,14 @@ class Socket
 
     public function ping()
     {
-        $this->message->setDestinationId($this->receiverId);
+        $this->message->setDestinationId($this->destinationId);
         $this->message->setNamespace($this->ns_heartbeat);
         $this->writeMessage(['type'=>'PING']);
     }
 
     public function pong()
     {
-        $this->message->setDestinationId($this->receiverId);
+        $this->message->setDestinationId($this->destinationId);
         $this->message->setNamespace($this->ns_heartbeat);
         $this->writeMessage(['type'=>'PONG']);
     }
