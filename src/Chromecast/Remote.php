@@ -12,7 +12,7 @@ class Remote
     private $destinationId;
     private $application;
 
-    public function __construct($device, $application = '')
+    public function __construct($device, $application, $channel = 'socket')
     {
         if(is_array($device)){
             if(isset($device['description']['URLBase'])){
@@ -23,13 +23,22 @@ class Remote
                 }
             }
         }
-        if($application !== ''){
-            $this->application = $application;
-        }
+
+        $this->application = $application;
+        
         if($this->host === ""){
             //return false; //host not set, consider throwing exception here
         }
-        $this->channel = new Channels\Socket($this->host, 'die');
+
+        switch($channel)
+        {
+            case 'socket':
+                $this->channel = new Channels\Socket($this->host, 'die');
+                break;
+            default:
+                $this->channel = new Channels\Socket($this->host, 'die');
+                break;
+        }
     }
 
     public function play($url = "", $autoplay = true, $position = false)
@@ -64,13 +73,12 @@ class Remote
  
     }
 
-    public function load($url, $autoplay = true, $position = false)
+    public function load($url, $autoplay = true, $contentType = 'video/mp4', $streamType = 'BUFFERED', $position = false)
     {
-        //$this->channel->connect($this->host, $url);
         $media_params = array(
             'contentId'=>$url,
-            'contentType'=>'video/mp4',
-            'streamType'=>'BUFFERED'
+            'contentType'=>$contentType,
+            'streamType'=>$streamType
         );
         $message = array(
             'requestId'=>1,
@@ -100,17 +108,16 @@ class Remote
             'type'=>'STOP'
         );
         $this->channel->addMessage($message);
- 
     }
 
-    public function seek($time = 0.0)
+    public function seek($time = 0.0, $resumeState = 'PLAYBACK_START')
     {
         $message = array(
             'mediaSessionId'=>$this->mediaSessionId,
             'requestId'=>1,
             'type'=>'SEEK',
-            'resumeState'=>'PLAYBACK_START', //or PLAYBACK_PAUSE
-            'currentTime'=>$time, //double, seconds from start
+            'resumeState'=>$resumeState, //or PLAYBACK_PAUSE
+            'currentTime'=>$time
         );
         $this->channel->addMessage($message);
     }

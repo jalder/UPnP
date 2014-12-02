@@ -3,11 +3,12 @@
 $files = array(
   __DIR__ . '/../vendor/autoload.php',
 );
-var_dump($files);
+
 $found = false;
-foreach ($files as $file) {
-    if (file_exists($file)) {
-        require $file;
+
+foreach($files as $file){
+    if(file_exists($file)){
+        require_once($file);
         $found = true;
         break;
     }

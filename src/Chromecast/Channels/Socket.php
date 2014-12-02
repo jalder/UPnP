@@ -27,7 +27,6 @@ class Socket
     public function __construct($host = '', $mode = 'die', $verbosity = 0)
     {
         if($host !== ''){
-            //$this->host = $host;
             $context = stream_context_create(); //consider removing
             $this->socket = stream_socket_client($host, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
             if($errno){
@@ -40,7 +39,6 @@ class Socket
             $this->message->setSourceId($this->sourceId);
             $this->message->setDestinationId($this->destinationId);
             $this->message->setPayloadType('STRING');  //0
-            //self::connect($host);
         }
         $this->mode = $mode;
         $this->verbosity = $verbosity;
@@ -78,12 +76,9 @@ class Socket
             $this->status();
             while (!feof($this->socket) && ($this->mode === 'daemon' || ($this->mode !== 'daemon' && $this->lastMessageStatus !== 'complete')))
             {
-
                 if(!is_array($msg_length)){
                     $msg = $msg.fread($this->socket, 1);
-                    $hex = bin2hex($msg);
                     if(strlen($msg) == 4){
-               
                         $msg_length = unpack('N', $msg);
                         $msg = '';
                     }
@@ -100,9 +95,8 @@ class Socket
                             $this->addReply($this->replies->getPayloadUtf8());
                             $this->replies->dump();
                         } catch (\Exception $ex) {
-                            //die('Parse error: ' . $e->getMessage());
+                            die('Parse error: ' . $e->getMessage());
                         }
-
                         $msg = '';
                     }
 
@@ -116,17 +110,12 @@ class Socket
                                     $this->pong();
                                 }
                                 if($payload->type === 'RECEIVER_STATUS' && isset($payload->status->applications[0])){
-                                    //var_dump('obtaining your app-id');
-                                    //if(($appId = $payload->status->applications[0]->transportId) !== null){
-                                        $this->appId = $appId = $payload->status->applications[0]->transportId;
-                                        $this->sessionId = $payload->status->applications[0]->sessionId;
-                                        //var_dump($appId);
-                                    //}
+                                    $this->appId = $appId = $payload->status->applications[0]->transportId;
+                                    $this->sessionId = $payload->status->applications[0]->sessionId;
                                     if($loadit && $payload->status->applications[0]->appId === 'CC1AD845'){
                                         $this->init($this->appId);
                                         $this->status($appId, 'urn:x-cast:com.google.cast.media');
                                         $loadit = false;
-                                        //self::writeQueue('RECEIVER_STATUS');
                                         $this->writeQueue('RECEIVER_STATUS');
                                         $this->lastMessage = 'complete';
                                     }
@@ -135,9 +124,6 @@ class Socket
                                     }
                                 }
                                 if($payload->type === 'MEDIA_STATUS'){
-                                    //var_dump('obtaining your media session id');
-                                    $this->appId = $appId;
-                                    //var_dump($payload);
                                     if(isset($payload->status[0]->mediaSessionId))
                                     {
                                         $this->mediaSessionId = $payload->status[0]->mediaSessionId;
@@ -157,13 +143,7 @@ class Socket
                 }
                 if((date('U') - $heartbeat) > 4){
                     $this->ping();
-                    //if(isset($this->appId)){
-                    //    self::status($this->message, $this->socket, $appId, 'urn:x-cast:com.google.cast.media');
-                    //}
-                    //self::status($this->message,$this->socket);    
-                    //self::ping();
                     $heartbeat = date('U');
-                    //var_dump($heartbeat); 
                 }
                 if((date('U') > ($now + 30)) && $this->mode !== 'daemon'){
                     die('execute ran out of time');
@@ -287,5 +267,4 @@ class Socket
         }   
         $this->writeMessage($payload);
     }
-
 }
