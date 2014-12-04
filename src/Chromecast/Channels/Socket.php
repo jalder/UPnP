@@ -1,10 +1,14 @@
 <?php
+/**
+ * Socket is a special Channel in that it not only implements Channel, but it also works with other Channels to communicate with the Chromecast
+ *
+ */
 
 namespace jalder\Upnp\Chromecast\Channels;
 
 require_once(dirname(__FILE__).'/../pb_proto_message.php');
 
-class Socket
+class Socket implements Channel
 {
     private $sessionId;
     private $mediaSessionId;
@@ -23,6 +27,7 @@ class Socket
     private $replyQueue = array();
     private $appId;
     private $verbosity;
+    private $channel;
 
     public function __construct($host = '', $mode = 'die', $verbosity = 0)
     {
@@ -53,6 +58,11 @@ class Socket
     public function setMode($mode = 'die')
     {
         $this->mode = $mode;
+    }
+
+    public function setChannel($channel = 'Socket')
+    {
+        $this->channel = $channel;
     }
 
     public function execute($wait_on = 'MEDIA_STATUS')
@@ -209,6 +219,11 @@ class Socket
         if($execute){
             $this->execute();
         }
+    }
+
+    public function getMessages()
+    {
+
     }
 
     private function addReply($reply)
