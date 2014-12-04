@@ -82,11 +82,11 @@ foreach($chromecasts->discover as $chromecast){
 ```
 
 ###Credits & Acknowledgements
-phpupnp.class.php from artheus/PHP-UPnP, working example of using sockets in PHP for SSDP.
+phpupnp.class.php from artheus/PHP-UPnP https://github.com/artheus/PHP-UPnP , working example of using sockets in PHP for SSDP.
 
-Protocol description https://github.com/thibauts/node-castv2#protocol-description written by thibauts.
+Chromecast protocol description https://github.com/thibauts/node-castv2#protocol-description written by thibauts.
 
-PHP implementation of Google's Protocol Buffer by allegro for encoding chromecast communication payloads in allegro/php-protobuf.
+PHP implementation of Google's Protocol Buffer by allegro for encoding chromecast communication payloads in allegro/php-protobuf https://github.com/allegro/php-protobuf.
 
 ###Work In Progress.
 

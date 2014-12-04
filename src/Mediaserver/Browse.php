@@ -20,8 +20,8 @@ class Browse
                 }
             }
         }
-        //else if is ctrlurl ready to go... maybe set
     }
+
     //BrowseDirectChildren or BrowseMetadata
     public function browse($base = '0', $browseflag = 'BrowseDirectChildren', $start = 0, $count = 0)
     {
@@ -64,7 +64,6 @@ class Browse
                     }
                 }
                 foreach($item->childNodes as $property){
-                    //some UPnP servers return multiple res for fanart and various video formats, let's parse out what we want
                     if($property->nodeName === 'res'){
                         $att_length = $property->attributes->length;
                         for($i = 0; $i < $att_length; ++$i){

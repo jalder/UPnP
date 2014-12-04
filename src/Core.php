@@ -9,8 +9,6 @@ class Core {
 
     public function __construct()
     {
-        $this->user_agent = '"Mozilla/5.0 UPnP/1.1 Jalder Upnp/0.0.1"';
-        $this->user_agent = 'PLAYSTATION 3';
         $this->user_agent = 'Roku/DVP-5.5 (025.05E00410A)';
     }
     
