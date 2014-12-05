@@ -5,13 +5,20 @@ namespace jalder\Upnp\Roku\Channels;
 class Curl
 {
 
+    private $location;
+
+    public function __construct($location)
+    {
+        $this->location = $location;
+    }
+
     public function addMessage($message)
     {
-        $this->curl($message);
+        return $this->curl($message);
     }
 
 
-    private function curl($message, $post = true)
+    private function curl($request, $post = true)
     {
         $url = $this->location.$request;
         $ch = curl_init();

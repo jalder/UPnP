@@ -21,7 +21,7 @@ class Remote
                 }
             }
         }
-        $this->channel = new Channels\Curl();
+        $this->channel = new Channels\Curl($this->location);
     }
 
     public function home()
@@ -31,7 +31,7 @@ class Remote
 
     public function back()
     {
-        return $this->curl('keypress/back');
+        return $this->channel->addMessage('keypress/back');
     }
 
     public function dPad($dir = 'up')
@@ -54,43 +54,48 @@ class Remote
                 $dir = 'up';
             break;
         }
-        return $this->curl('keypress/'.$dir);
+        return $this->channel->addMessage('keypress/'.$dir);
     }
 
     public function ok()
     {
-        return $this->curl('keypress/select');
+        return $this->channel->addMessage('keypress/select');
     }
 
     public function options()
     {
-        return $this->curl('keypress/info');
+        return $this->channel->addMessage('keypress/info');
     }
 
     public function rewind()
     {
-        return $this->curl('keypress/rev');
+        return $this->channel->addMessage('keypress/rev');
     }
 
     public function fforward()
     {
-        return $this->curl('keypress/fwd');
+        return $this->channel->addMessage('keypress/fwd');
     }
 
     public function pause()
     {
-        return $this->curl('keypress/play');
+        return $this->channel->addMessage('keypress/play');
+    }
+
+    public function instantReplay()
+    {
+        return $this->channel->addMessage('keypress/instantreplay');
     }
 
     public function play()
     {
-        return $this->curl('keypress/play');
+        return $this->channel->addMessage('keypress/play');
     }
 
     public function type($query)
     {
         foreach(str_split($query) as $char){
-            $this->curl('keypress/Lit_'.urlencode($char));
+            $this->channel->addMessage('keypress/Lit_'.urlencode($char));
         }
         return true;
     }
@@ -101,7 +106,7 @@ class Remote
      */
     public function getChannels()
     {
-        $response = $this->curl('query/apps', false);
+        $response = $this->channel->addMessage('query/apps', false);
         $xml = simplexml_load_string($response);
         $channels = array();
         foreach($xml->app as $app){
@@ -117,7 +122,7 @@ class Remote
 
     public function loadChannel($channel_id, $parameters = array())
     {
-        return $this->curl('launch/'.$channel_id.'?'.http_build_query($parameters));
+        return $this->channel->addMessage('launch/'.$channel_id.'?'.http_build_query($parameters));
     }
 
     private function curl($request, $post = true)
