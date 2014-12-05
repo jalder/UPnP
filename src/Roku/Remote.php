@@ -5,6 +5,7 @@ namespace jalder\Upnp\Roku;
 class Remote
 {
     private $location;
+    private $channel;
 
     public function __construct($location)
     {
@@ -20,11 +21,12 @@ class Remote
                 }
             }
         }
+        $this->channel = new Channels\Curl();
     }
 
     public function home()
     {
-        return $this->curl('keypress/home');
+        return $this->channel->addMessage('keypress/home');
     }
 
     public function back()
@@ -93,6 +95,10 @@ class Remote
         return true;
     }
 
+    /**
+     * to not confuse with communication channels, consider renaming to getApplications
+     *
+     */
     public function getChannels()
     {
         $response = $this->curl('query/apps', false);

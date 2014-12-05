@@ -41,7 +41,8 @@ class Player
                     'title'=>$video['title'],
                
                 );
-                $response = $this->remote->loadChannel('dev',$arguments);
+                $application = new Applications\Simplevideoplayer();
+                $response = $this->remote->loadChannel($application->getAppId(),$arguments);
             }    
             return $response;
         }

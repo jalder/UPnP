@@ -75,7 +75,7 @@ foreach($rokus->discover() as $roku){
 $chromecasts = new Chromecast();
 $application = new Chromecast\Applications\DefaultMediaReceiver();  //select the application we are speaking with
 
-foreach($chromecasts->discover as $chromecast){
+foreach($chromecasts->discover() as $chromecast){
     $remote = new Chromecast\Remote($chromecast, $application);  //get the remote and pass to the remote the application it will manage
     $remote->play($url);  //will start playback of video using the default media receiver chromecast application.
 }
