@@ -6,7 +6,7 @@ PHP Library for Interacting with UPnP Network Devices
 ###Work In Progress.
 
 ### Description
-This library aims to be a convenient set of classes for controlling UPnP devices on a network. Some service specific classes for devices that leverage UPnP/SSDP may also be included such as the Roku (ecp and simplevideoplayer), Chromecast (castv2), XBMC (xbmc json api).  Any device that can be discovered via SSDP will be considered for inclusion.  Should mDNS be implemented in the future, package name may be changed to better reflect its role/purpose.
+This library aims to be a convenient set of classes for controlling UPnP devices on a network. Some service specific classes for devices that leverage UPnP/SSDP may also be included such as the Roku (ecp and simplevideoplayer), Chromecast (castv2), XBMC.  Any device that can be discovered via SSDP will be considered for inclusion.  Should mDNS be implemented in the future, package name may be changed to better reflect its role/purpose.
 
 ### Requirements
 PHP Protocol Buffer module needs to be compiled and installed in your environment for communicating protobuf binary messages with chromecasts.  This is only needed for controlling Chromecasts, module can be ignored for pure UPnP implementations or when using other supported devices.  See Credits and Acknowledgements for further details.
@@ -17,7 +17,7 @@ Package is composer compliant using PSR-4 autoloader.
 ```
 {
     "require": {
-        "jalder/upnp": "*"
+        "jalder/upnp": "dev-master"
     }
 }
 ```
