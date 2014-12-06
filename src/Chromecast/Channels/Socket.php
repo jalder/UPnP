@@ -28,6 +28,8 @@ class Socket implements Channel
     private $appId;
     private $verbosity;
     private $channel;
+    private $receiverStatus;
+    private $mediaStatus;
 
     public function __construct($host = '', $mode = 'die', $verbosity = 0)
     {
@@ -103,7 +105,7 @@ class Socket implements Channel
                         try {
                             $this->replies->parseFromString($msg);
                             $this->addReply($this->replies->getPayloadUtf8());
-                            $this->replies->dump();
+                            //$this->replies->dump();
                         } catch (\Exception $ex) {
                             die('Parse error: ' . $e->getMessage());
                         }
@@ -113,7 +115,7 @@ class Socket implements Channel
                     if($this->replies->getPayloadUtf8()){
                         if($payload = json_decode($this->replies->getPayloadUtf8())){
                             if($this->verbosity > 0){
-                                var_dump($payload);
+                                //var_dump($payload);
                             }
                             if(isset($payload->type)){
                                 if($payload->type == 'PING' && $this->replies->getDestinationId()!='receiver-0'){
@@ -154,11 +156,12 @@ class Socket implements Channel
                 if((date('U') - $heartbeat) > 4){
                     $this->ping();
                     $heartbeat = date('U');
+                    var_dump($this->getStatus());
                 }
                 if((date('U') > ($now + 30)) && $this->mode !== 'daemon'){
                     die('execute ran out of time');
                 }
-                //self::checkReply();
+                $this->checkReply();
             }
             fclose($this->socket);
         }
@@ -201,8 +204,7 @@ class Socket implements Channel
         if($this->verbosity > 0){
             $this->message->dump();
         }
-        fwrite($this->socket, $length.$packed);
- 
+        fwrite($this->socket, $length.$packed); 
     }
 
     public function addMessage($message, $execute = true)
@@ -235,8 +237,45 @@ class Socket implements Channel
     {
         //check reply, process queue accordingly
         foreach($this->replyQueue as $key=>$reply){
-            unset($this->replyQueue[$key]); //replace with another method to handles queue cleaning
-            var_dump($reply);
+            //unset($this->replyQueue[$key]); //replace with another method to handles queue cleaning
+            //var_dump($reply);
+            if($reply->type === 'RECEIVER_STATUS'){
+                $this->receiverStatus = $reply;
+                $this->writeReply($reply);
+                unset($this->replyQueue[$key]);
+            }
+            if($reply->type === 'MEDIA_STATUS'){
+                $this->mediaStatus = $reply;
+                $this->writeReply($reply);
+                unset($this->replyQueue[$key]);
+            }
+            if($reply->type === 'PING' || $reply->type === 'PONG'){
+                unset($this->replyQueue[$key]);
+            }
+            //die();
+        }
+    }
+
+    public function writeReply($reply)
+    {
+        var_dump($reply);
+    }
+
+    public function getStatus($type = 'RECEIVER_STATUS')
+    {
+        switch($type)
+        {
+            case 'RECEIVER_STATUS':
+                if($this->receiverStatus === null){
+                    $this->status();
+                    while($this->receiverStatus === null){
+                    }
+                }
+                return $this->receiverStatus;
+            break;
+            case 'MEDIA_STATUS':
+                return $this->mediaStatus;
+            break;
         }
     }
 

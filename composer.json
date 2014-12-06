@@ -1,9 +1,8 @@
 {
-    "name": "jalder/Upnp",
+    "name": "jalder/upnp",
     "description": "UPnP utilities for PHP applications",
     "license": "MIT",
-    "keywords": ["upnp"],
-    "version": "0.0.1",
+    "keywords": ["upnp", "chromecast", "roku", "ssdp", "xbmc", "kodi"],
     "authors": [
         {
             "name": "John Alder",
