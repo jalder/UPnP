@@ -264,6 +264,7 @@ class Socket implements Channel
     private function addReply($reply)
     {
         $this->replyQueue[] = json_decode($reply);
+        $this->channel->addReply(json_decode($reply));
     }
 
     private function checkReply()
