@@ -35,6 +35,9 @@ class Remote
             case 'socket':
                 $this->channel = new Channels\Socket($this->host, 'die');
                 break;
+            case 'sqlite':
+                $this->channel = new Channels\Sqlite();
+                break;
             default:
                 $this->channel = new Channels\Socket($this->host, 'die');
                 break;
@@ -44,11 +47,11 @@ class Remote
     public function play($url = "", $autoplay = true, $position = false)
     {
         if($url !== ""){
-            self::launch();
-            self::load($url, $autoplay, $position);
+            $this->launch();
+            $this->load($url, $autoplay, $position);
         }
         else{
-            self::unPause();
+            $this->unPause();
         }
     }
     
@@ -84,7 +87,7 @@ class Remote
             'requestId'=>1,
             'type'=>'LOAD',
             'media'=>$media_params,
-            'autoplay'=>true
+            'autoplay'=>$autoplay
         );
         $this->channel->addMessage($message);
     }
@@ -125,7 +128,8 @@ class Remote
     //should we do receiver or media status here? perhaps move receiver portion to Chromecast class?
     public function getStatus()
     {
-
+        //$status = $this->channel->getMessages();
+        //var_dump($status);
     }
 
     //should we do receiver or media volume here? perhaps move receiver portion to Chromecast class?
@@ -139,3 +143,4 @@ class Remote
         return $this->host;
     }
 }
+

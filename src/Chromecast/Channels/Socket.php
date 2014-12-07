@@ -31,7 +31,7 @@ class Socket implements Channel
     private $receiverStatus;
     private $mediaStatus;
 
-    public function __construct($host = '', $mode = 'die', $verbosity = 0)
+    public function __construct($host = '', $mode = 'die', $verbosity = 0, $channel = 'socket')
     {
         if($host !== ''){
             $context = stream_context_create(); //consider removing
@@ -49,6 +49,7 @@ class Socket implements Channel
         }
         $this->mode = $mode;
         $this->verbosity = $verbosity;
+        $this->setChannel($channel);
     }
 
     /**
@@ -62,9 +63,16 @@ class Socket implements Channel
         $this->mode = $mode;
     }
 
-    public function setChannel($channel = 'Socket')
+    public function setChannel($channel = 'socket')
     {
-        $this->channel = $channel;
+        switch($channel){
+            case 'sqlite':
+                $this->channel = new Sqlite();
+                break;
+            default:
+                $this->channel = $channel;
+                break;
+        }
     }
 
     public function execute($wait_on = 'MEDIA_STATUS')
@@ -118,15 +126,15 @@ class Socket implements Channel
                                 //var_dump($payload);
                             }
                             if(isset($payload->type)){
-                                if($payload->type == 'PING' && $this->replies->getDestinationId()!='receiver-0'){
+                                if($payload->type === 'PING' && $this->replies->getDestinationId() !== 'receiver-0'){
                                     $this->pong();
                                 }
                                 if($payload->type === 'RECEIVER_STATUS' && isset($payload->status->applications[0])){
-                                    $this->appId = $appId = $payload->status->applications[0]->transportId;
+                                    $this->appId = $payload->status->applications[0]->transportId;
                                     $this->sessionId = $payload->status->applications[0]->sessionId;
                                     if($loadit && $payload->status->applications[0]->appId === 'CC1AD845'){
                                         $this->init($this->appId);
-                                        $this->status($appId, 'urn:x-cast:com.google.cast.media');
+                                        $this->status($this->appId, 'urn:x-cast:com.google.cast.media');
                                         $loadit = false;
                                         $this->writeQueue('RECEIVER_STATUS');
                                         $this->lastMessage = 'complete';
@@ -156,42 +164,67 @@ class Socket implements Channel
                 if((date('U') - $heartbeat) > 4){
                     $this->ping();
                     $heartbeat = date('U');
-                    var_dump($this->getStatus());
+                    //var_dump($this->getStatus());
                 }
                 if((date('U') > ($now + 30)) && $this->mode !== 'daemon'){
                     die('execute ran out of time');
                 }
                 $this->checkReply();
+                //if(isset($this->appId)){
+                $this->getQueue();
+                //}
             }
             fclose($this->socket);
         }
     }
 
+    private function getQueue()
+    {
+
+        if($this->channel !== 'socket'){
+            $this->messageQueue = $this->channel->getMessages();
+            if(count($this->messageQueue)){
+                var_dump($this->messageQueue);
+            }
+            foreach($this->messageQueue as $queue => $messages){
+                $this->writeQueue($queue);
+            }
+        }
+
+    }
 
     private function writeQueue($queue = 'MEDIA_STATUS')
     {
         if($this->verbosity > 0){
-            var_dump('writing out message queue to socket');
-            var_dump($this->messageQueue);
+            //var_dump('writing out message queue to socket');
+            //var_dump($this->messageQueue);
         }
         if(isset($this->messageQueue[$queue])){
             foreach($this->messageQueue[$queue] as $id=>$message){
                 switch($queue){
                     case 'CONNECT':
                         $this->message->setNamespace($this->ns_receiver);
+                        unset($this->messageQueue[$queue][$id]);
+                        $this->writeMessage($message);
                         break;
                     case 'RECEIVER_STATUS':
                         $this->message->setNamespace($this->ns_media);
                         $this->message->setDestinationId($this->appId);
+                        unset($this->messageQueue[$queue][$id]);
+                        $this->writeMessage($message);
                         break;
                     case 'MEDIA_STATUS':
-                        $message['mediaSessionId'] = $this->mediaSessionId;
-                        $this->message->setNamespace($this->ns_media);
-                        $this->message->setDestinationId($this->appId);
+                        if(isset($this->appId) && isset($this->mediaSessionId)){
+                            $message['mediaSessionId'] = $this->mediaSessionId;
+                            $this->message->setNamespace($this->ns_media);
+                            $this->message->setDestinationId($this->appId);
+                            unset($this->messageQueue[$queue][$id]);
+                            $this->writeMessage($message);
+                        }
                         break;
                 }
-                $this->writeMessage($message);
-                unset($this->messageQueue[$queue][$id]);
+                //$this->writeMessage($message);
+                //unset($this->messageQueue[$queue][$id]);
             }
         }
     }
@@ -201,7 +234,7 @@ class Socket implements Channel
         $this->message->setPayloadUtf8(json_encode($message));
         $packed = $this->message->serializeToString();
         $length = pack('N',strlen($packed));
-        if($this->verbosity > 0){
+        if($this->verbosity > 0 && $message['type'] !== 'PING' && $message['type'] !== 'PONG'){
             $this->message->dump();
         }
         fwrite($this->socket, $length.$packed); 

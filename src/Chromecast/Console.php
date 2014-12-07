@@ -13,7 +13,7 @@ class Console
 
     public function run()
     {
-        $socket = new Channels\Socket($this->host, 'daemon', $verbosity = 5);
+        $socket = new Channels\Socket($this->host, 'daemon', $verbosity = 5, $channel = 'sqlite');
         $socket->execute();
     }
 }
