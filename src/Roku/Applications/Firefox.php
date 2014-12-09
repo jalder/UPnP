@@ -12,11 +12,12 @@ class Firefox
     private $socketPort = 9191;
     private $sources = ['homescreen', 'app-run-dev', 'external-control'];
     private $video;
+    private $remote;
 
     public function __construct($device)
     {
-        $remote = new Remote($device);
-        foreach($remote->getChannels() as $id=>$ch){
+        $this->remote = new Remote($device);
+        foreach($this->remote->getChannels() as $id=>$ch){
             if($ch['name'] == 'Firefox'){
                 $this->appId = $id;
             }
@@ -37,7 +38,7 @@ class Firefox
 
     public function load()
     {
-        $channel = new Channels\Socket('192.168.1.104',$this->video);
+        $channel = new Channels\Socket($this->remote->getLocation(),$this->video);
         $channel->execute();
     }
 }

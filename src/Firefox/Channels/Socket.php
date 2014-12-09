@@ -14,7 +14,8 @@ class Socket
     public function __construct($host, $arguments)
     {
         $this->video = $arguments;
-        $this->service = '192.168.1.104:'.$this->socketPort;
+        $parts = parse_url($host);
+        $this->service = $parts['host'].':'.$this->socketPort;
     }
 
     public function execute()
