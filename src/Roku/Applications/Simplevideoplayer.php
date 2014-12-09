@@ -18,4 +18,13 @@ class Simplevideoplayer
         return $this->appId;
     }
 
+    public function launchParams($arguments)
+    {
+        return $arguments;
+    }
+
+    public functon load()
+    {
+        return true;
+    }
 }

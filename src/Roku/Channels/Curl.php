@@ -12,9 +12,9 @@ class Curl
         $this->location = $location;
     }
 
-    public function addMessage($message)
+    public function addMessage($message, $post = true)
     {
-        return $this->curl($message);
+        return $this->curl($message, $post);
     }
 
 

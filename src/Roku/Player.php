@@ -10,11 +10,21 @@ class Player
 
     private $remote;
     private $location;
+    private $application;
 
-    public function __construct($device)
+    public function __construct($device, $application = 'simplevideoplayer')
     {
         $this->remote = new Remote($device);
         $this->location = $this->remote->getLocation();
+        switch($application)
+        {
+            case 'simplevideoplayer':
+                $this->application = new Applications\Simplevideoplayer();
+                break;
+            case 'firefox':
+                $this->application = new Applications\Firefox($device);
+                break;
+        }
     }
 
     public function play($video)
@@ -40,9 +50,9 @@ class Player
                     'srt'=>$video['subtitle_url'],
                     'title'=>$video['title'],
                
-                );
-                $application = new Applications\Simplevideoplayer();
-                $response = $this->remote->loadChannel($application->getAppId(),$arguments);
+                ); 
+                $response = $this->remote->loadChannel($this->application->getAppId(),$this->application->launchParams($arguments));
+                $this->application->load();
             }    
             return $response;
         }

@@ -1,7 +1,7 @@
 <?php
 
 namespace jalder\Upnp\Roku\Applications;
-use jalder\Upnp\Roku;
+use jalder\Upnp\Roku\Remote;
 
 class YouTube
 {
