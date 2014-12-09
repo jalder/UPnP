@@ -61,11 +61,13 @@ print_r($devices);
 
 ```
 $rokus = new Roku();
-
+$application = new Roku\Applications\Firefox();
 foreach($rokus->discover() as $roku){
-    $remote = new Roku\Remote($roku); //optionally, pass an application to control $remote = new Roku\Remote($roku,'firefox');
+    $remote = new Roku\Remote($roku);
     $remote->play(); //all ECP buttons are supported, play (toggle), okay, back, home, dPad, forward, rewind, launch app
-    $remote->play($url);  //if the simplevideoplayer example app is sideloaded on your roku, you can automatically launch playback of videos as well. Use case often involves starting playback of a video item discovered with the Mediaserver methods.
+    //or to launch a video
+    $remote = new Roku\Player($roku, $application);
+    $remote->play($url);
 }
 
 ```

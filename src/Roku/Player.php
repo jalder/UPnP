@@ -21,8 +21,8 @@ class Player
             case 'simplevideoplayer':
                 $this->application = new Applications\Simplevideoplayer();
                 break;
-            case 'firefox':
-                $this->application = new Applications\Firefox($device);
+            default:
+                $this->application = $application;
                 break;
         }
     }
@@ -31,7 +31,7 @@ class Player
     {
         if(is_array($video)){
 
-            if(strpos($video['url'],'youtube')){
+            if(strpos($video['url'],'youtube')&&false){
                 $url = parse_url($video['url']);
                 parse_str($url['query'],$query);
                 $arguments = array(
