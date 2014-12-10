@@ -23,8 +23,9 @@ class Simplevideoplayer
         return $arguments;
     }
 
-    public functon load()
+    public function load()
     {
+        //there are no runtime load commands or communication, playback is started via launch parameters to roku application
         return true;
     }
 }

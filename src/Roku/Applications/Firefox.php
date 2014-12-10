@@ -38,7 +38,8 @@ class Firefox
 
     public function load()
     {
-        $channel = new Channels\Socket($this->remote->getLocation(),$this->video);
+        $urlsParts = parse_url($this->remote->getLocation());
+        $channel = new Channels\Socket($urlParts['host'].':'.$this->socketPort,$this->video);
         $channel->execute();
     }
 }

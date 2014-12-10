@@ -60,8 +60,7 @@ class Remote
 		$args = array(
 			'InstanceID'=>0,
 			'CurrentURI'=>'<![CDATA['.$url.']]>',
-			//'CurrentURI' => $url,
-			'CurrentURIMetaData'=>'testmetadata'
+			'CurrentURIMetaData'=>''
 		);
 		$response = $this->upnp->sendRequestToDevice('SetAVTransportURI',$args,$this->ctrlurl,$type = 'AVTransport');
 		$args = array('InstanceID'=>0,'Speed'=>1);
@@ -73,7 +72,6 @@ class Remote
 	public function getControlURL($description_url, $service = 'AVTransport')
 	{
 		$description = $this->getDescription($description_url);
-		//	var_dump($description); die();
 
 		switch($service)
 		{
@@ -90,7 +88,7 @@ class Remote
 			if($service['serviceType'] == $serviceType)
 			{
 				$url = parse_url($description_url);
-				return $url['scheme'].'://'.$url['host'].':'.$url['port'].$service['controlURL']; //fix this to get device base url
+				return $url['scheme'].'://'.$url['host'].':'.$url['port'].$service['controlURL'];
 			}
 		}
 	}
@@ -115,7 +113,6 @@ class Remote
 		return $this->instanceOnly('getPositionInfo');
 	}
 
-	//helper function for calls that require only an instance id
 	private function instanceOnly($command,$type = 'AVTransport', $id = 0)
 	{
 		$args = array(
@@ -158,12 +155,12 @@ class Remote
 
     public function fforward()
     {
-        return self::next();
+        return $this->next();
     }
 
     public function rewind()
     {
-        return self::previous();
+        return $this->previous();
     }
 
 	public function seek($unit = 'TRACK_NR', $target=0)

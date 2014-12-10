@@ -25,10 +25,6 @@ class Remote
         }
 
         $this->application = $application;
-        
-        if($this->host === ""){
-            //return false; //host not set, consider throwing exception here
-        }
 
         switch($channel)
         {
