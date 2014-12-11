@@ -1,0 +1,34 @@
+#!/usr/bin/env php
+<?php
+$files = array(
+  __DIR__ . '/../vendor/autoload.php',
+);
+
+$found = false;
+
+foreach($files as $file){
+    if(file_exists($file)){
+        require_once($file);
+        $found = true;
+        break;
+    }
+}
+
+if (!$found){
+    die(
+      'Composer autoload not found:'.PHP_EOL 
+    );
+}
+
+if(isset($argv[1])){
+    $host = $argv[1];
+    $file = $argv[2];
+    $auth = ['user'=>$argv[3],'pass'=>$argv[4]];
+    $roku = new \jalder\Upnp\Roku\Developer($host);
+    $roku->pluginInstall($file, $auth);
+}
+else{
+    die(
+        'host argument is missing'.PHP_EOL
+    );
+}
