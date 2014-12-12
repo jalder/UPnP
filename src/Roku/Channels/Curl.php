@@ -21,13 +21,11 @@ class Curl
     private function curl($request, $post = true, $params = array(), $auth = array())
     {
         $url = $this->location.$request;
-        var_dump($url);
         $ch = curl_init();
         curl_setopt($ch,CURLOPT_URL,$url);
         if($post){
             curl_setopt($ch, CURLOPT_POST, true);
             if($count = count($params)){
-                var_dump($params);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
             }
             else{
@@ -40,7 +38,6 @@ class Curl
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $content = curl_exec($ch);
-        var_dump(curl_getinfo($ch));
         curl_close($ch);
         return $content;
     }
