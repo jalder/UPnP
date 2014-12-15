@@ -30,6 +30,11 @@ class Firefox
         return $this->appId;
     }
 
+    public function setAppId($appId)
+    {
+        $this->appId = $appId;
+    }
+
     public function launchParams($arguments)
     {
         $this->video = $arguments;
