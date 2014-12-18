@@ -10,6 +10,7 @@ class Core {
     public function __construct()
     {
         $this->user_agent = 'Roku/DVP-5.5 (025.05E00410A)';
+        //$this->user_agent = 'Xbox';
     }
     
     public function search($st = 'ssdp:all', $mx = 2, $man = 'ssdp:discover', $from = null, $port = null, $sockTimout = '2')

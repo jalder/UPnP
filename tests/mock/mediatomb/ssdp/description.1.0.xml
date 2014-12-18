@@ -1,0 +1,109 @@
+HTTP/1.1 200 OK
+CONTENT-LENGTH: 2749
+CONTENT-TYPE: text/xml; charset=UTF-8
+DATE: Thu, 18 Dec 2014 04:52:39 GMT
+LAST-MODIFIED: Mon, 15 Dec 2014 13:03:43 GMT
+SERVER: Linux/3.13.0-32-generic, UPnP/1.0, MediaTomb/0.12.1
+CONNECTION: close
+
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+<specVersion>
+<major>1</major>
+<minor>0</minor>
+</specVersion>
+<device>
+<deviceType>urn:schemas-upnp-org:device:MediaServer:1</deviceType>
+<presentationURL>http://10.1.1.11:49152/</presentationURL>
+<friendlyName>MediaTomb</friendlyName>
+<manufacturer>(c) 2005-2008 Gena Batyan &lt;bgeradz@mediatomb.cc&gt;, Sergey Bostandzhyan &lt;jin@mediatomb.cc&gt;, Leonhard Wimmer &lt;leo@mediatomb.cc&gt;</manufacturer>
+<manufacturerURL>http://mediatomb.cc/</manufacturerURL>
+<modelDescription>Free UPnP AV MediaServer, GNU GPL</modelDescription>
+<modelName>MediaTomb</modelName>
+<modelNumber>0.12.1</modelNumber>
+<serialNumber>1</serialNumber>
+<UDN>uuid:de3f97e5-22dd-41f9-83ec-b8da48ec664a</UDN>
+<iconList>
+<icon>
+<mimetype>image/png</mimetype>
+<width>120</width>
+<height>120</height>
+<depth>24</depth>
+<url>/icons/mt-icon120.png</url>
+</icon>
+<icon>
+<mimetype>image/x-ms-bmp</mimetype>
+<width>120</width>
+<height>120</height>
+<depth>24</depth>
+<url>/icons/mt-icon120.bmp</url>
+</icon>
+<icon>
+<mimetype>image/jpeg</mimetype>
+<width>120</width>
+<height>120</height>
+<depth>24</depth>
+<url>/icons/mt-icon120.jpg</url>
+</icon>
+<icon>
+<mimetype>image/png</mimetype>
+<width>48</width>
+<height>48</height>
+<depth>24</depth>
+<url>/icons/mt-icon48.png</url>
+</icon>
+<icon>
+<mimetype>image/x-ms-bmp</mimetype>
+<width>48</width>
+<height>48</height>
+<depth>24</depth>
+<url>/icons/mt-icon48.bmp</url>
+</icon>
+<icon>
+<mimetype>image/jpeg</mimetype>
+<width>48</width>
+<height>48</height>
+<depth>24</depth>
+<url>/icons/mt-icon48.jpg</url>
+</icon>
+<icon>
+<mimetype>image/png</mimetype>
+<width>32</width>
+<height>32</height>
+<depth>8</depth>
+<url>/icons/mt-icon32.png</url>
+</icon>
+<icon>
+<mimetype>image/x-ms-bmp</mimetype>
+<width>32</width>
+<height>32</height>
+<depth>8</depth>
+<url>/icons/mt-icon32.bmp</url>
+</icon>
+<icon>
+<mimetype>image/jpeg</mimetype>
+<width>32</width>
+<height>32</height>
+<depth>8</depth>
+<url>/icons/mt-icon32.jpg</url>
+</icon>
+</iconList>
+<serviceList>
+<service>
+<serviceType>urn:schemas-upnp-org:service:ConnectionManager:1</serviceType>
+<serviceId>urn:upnp-org:serviceId:ConnectionManager</serviceId>
+<SCPDURL>cm.xml</SCPDURL>
+<controlURL>/upnp/control/cm</controlURL>
+<eventSubURL>/upnp/event/cm</eventSubURL>
+</service>
+<service>
+<serviceType>urn:schemas-upnp-org:service:ContentDirectory:1</serviceType>
+<serviceId>urn:upnp-org:serviceId:ContentDirectory</serviceId>
+<SCPDURL>cds.xml</SCPDURL>
+<controlURL>/upnp/control/cds</controlURL>
+<eventSubURL>/upnp/event/cds</eventSubURL>
+</service>
+</serviceList>
+</device>
+<URLBase>http://10.1.1.11:49152/</URLBase>
+</root>

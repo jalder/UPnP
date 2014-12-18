@@ -1,0 +1,41 @@
+HTTP/1.1 200 OK
+Content-Length: 1169
+Server: Roku UPnP/1.0 MiniUPnPd/1.4
+Cache-Control: no-cache
+Content-Type: text/xml; charset="utf-8"
+
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+<specVersion>
+<major>1</major>
+<minor>0</minor>
+</specVersion>
+<device>
+<deviceType>urn:roku-com:device:player:1-0</deviceType>
+<friendlyName>Roku Streaming Player</friendlyName>
+<manufacturer>Roku</manufacturer>
+<manufacturerURL>http://www.roku.com/</manufacturerURL>
+<modelDescription>Roku Streaming Player Network Media</modelDescription>
+<modelName>Roku Streaming Player 3100X</modelName>
+<modelNumber>3100X</modelNumber>
+<modelURL>http://www.roku.com/</modelURL>
+<serialNumber>1234567890</serialNumber>
+<UDN>uuid:a74352e2-8caa-4f3d-a64e-7bc343ff8f08</UDN>
+<serviceList>
+<service>
+<serviceType>urn:roku-com:service:ecp:1</serviceType>
+<serviceId>urn:roku-com:serviceId:ecp1-0</serviceId>
+<controlURL></controlURL>
+<eventSubURL></eventSubURL>
+<SCPDURL>ecp_SCPD.xml</SCPDURL>
+</service>
+<service>
+<serviceType>urn:dial-multiscreen-org:service:dial:1</serviceType>
+<serviceId>urn:dial-multiscreen-org:serviceId:dial1-0</serviceId>
+<controlURL></controlURL>
+<eventSubURL></eventSubURL>
+<SCPDURL>dial_SCPD.xml</SCPDURL>
+</service>
+</serviceList>
+</device>
+</root>

@@ -3,7 +3,7 @@
 namespace jalder\Upnp\Roku\Applications;
 
 use jalder\Upnp\Roku\Remote;
-use jalder\Upnp\Firefox\Channels;
+use jalder\Upnp\Roku\Channels;
 
 class Firefox
 {
@@ -44,7 +44,7 @@ class Firefox
     public function load()
     {
         $urlParts = parse_url($this->remote->getLocation());
-        $channel = new Channels\Socket($urlParts['host'].':'.$this->socketPort,$this->video);
+        $channel = new Channels\Firefox($urlParts['host'].':'.$this->socketPort,$this->video);
         $channel->execute();
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace jalder\Upnp\Firefox\Channels;
+namespace jalder\Upnp\Roku\Channels;
 
-class Socket
+class Firefox
 {
     private $video;
     private $socket;

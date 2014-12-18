@@ -72,7 +72,7 @@ class Remote
  
     }
 
-    public function load($url, $autoplay = true, $contentType = 'video/mp4', $streamType = 'BUFFERED', $position = false)
+    public function load($url, $autoplay = true, $position = false, $contentType = 'video/mp4', $streamType = 'BUFFERED')
     {
         $media_params = array(
             'contentId'=>$url,
