@@ -10,26 +10,26 @@ require_once(dirname(__FILE__).'/../pb_proto_message.php');
 
 class Socket implements Channel
 {
-    private $sessionId;
-    private $mediaSessionId;
+    protected $sessionId;
+    protected $mediaSessionId;
     private $socket;
-    private $messages;
-    private $replies;
-    private $ns_heartbeat = 'urn:x-cast:com.google.cast.tp.heartbeat';
-    private $ns_media = 'urn:x-cast:com.google.cast.media';
-    private $ns_connect = 'urn:x-cast:com.google.cast.tp.connection';
-    private $ns_receiver = 'urn:x-cast:com.google.cast.receiver';
-    private $mode = 'die';
-    private $sourceId = 'sender-0';
-    private $destinationId = 'receiver-0';
+    public $messages;
+    public $replies;
+    protected $ns_heartbeat = 'urn:x-cast:com.google.cast.tp.heartbeat';
+    protected $ns_media = 'urn:x-cast:com.google.cast.media';
+    protected $ns_connect = 'urn:x-cast:com.google.cast.tp.connection';
+    protected $ns_receiver = 'urn:x-cast:com.google.cast.receiver';
+    protected $mode = 'die';
+    protected $sourceId = 'sender-0';
+    protected $destinationId = 'receiver-0';
     private $lastMessageStatus = 'open';
-    private $messageQueue = array();
-    private $replyQueue = array();
-    private $appId;
-    private $verbosity;
-    private $channel;
-    private $receiverStatus;
-    private $mediaStatus;
+    protected $messageQueue = array();
+    protected $replyQueue = array();
+    protected $appId;
+    protected $verbosity;
+    protected $channel;
+    protected $receiverStatus;
+    protected $mediaStatus;
 
     public function __construct($host = '', $mode = 'die', $verbosity = 0, $channel = 'socket')
     {
@@ -193,7 +193,7 @@ class Socket implements Channel
 
     }
 
-    private function writeQueue($queue = 'MEDIA_STATUS')
+    public function writeQueue($queue = 'MEDIA_STATUS')
     {
         if($this->verbosity > 0){
             //var_dump('writing out message queue to socket');
@@ -227,9 +227,64 @@ class Socket implements Channel
                 //unset($this->messageQueue[$queue][$id]);
             }
         }
+        if($queue == 'all'){
+            foreach($this->messageQueue as $queueType){
+                $safe_to_run = false;
+                switch($queueType){
+                    case 'CONNECT':
+                        $safe_to_run = true;
+                        $this->message->setNamespace($this->ns_receiver);
+                        break;
+                    case 'RECEIVER_STATUS':
+                        $this->message->setNamespace($this->ns_media);
+                        if($this->appId){
+                            $this->message->setDestinationId($this->appId);
+                            $safe_to_run = true;
+                        }
+                        break;
+                    case 'MEDIA_STATUS':
+                        $this->message->setNamespace($this->ns_media); 
+                        if(isset($this->appId) && isset($this->mediaSessionId)){ 
+                            $this->message->setDestinationId($this->appId);
+                            foreach($this->messageQueue[$queueType] as &$message){
+                                $message['mediaSessionId'] = $this->mediaSessionId;
+                            }
+                            $safe_to_run = true;
+                        }
+                        break;
+                }
+                if($safe_to_run){
+                    foreach($this->messageQueue[$queueType] as $id=>$message){
+                        unset($this->messageQueue[$queueType][$id]);
+                        $this->writeMessage($message);
+                    }
+                }
+                else{
+                    $this->status();
+                }
+            }
+        }
     }
 
-    private function writeMessage($message)
+    public function buildPayload($message)
+    {
+        switch($message['type']){
+            case 'LAUNCH':
+                $this->message->setNamespace($this->ns_receiver);
+                break;
+            case 'LOAD':
+                $this->message->setNamespace($this->ns_media);
+                break;
+            default:
+                break;
+        }
+        $this->message->setPayloadUtf8(json_encode($message));
+        $packed = $this->message->serializeToString();
+        $length = pack('N',strlen($packed));
+        return $length.$packed;
+    }
+
+    protected function writeMessage($message)
     {
         $this->message->setPayloadUtf8(json_encode($message));
         $packed = $this->message->serializeToString();
@@ -292,6 +347,51 @@ class Socket implements Channel
         }
     }
 
+    public function handleReply()
+    {
+
+        if($this->replies->getPayloadUtf8()){
+            if($payload = json_decode($this->replies->getPayloadUtf8())){
+                if($this->verbosity > 0){
+                    var_dump($payload);
+                }
+                if(isset($payload->type)){
+                    if($payload->type === 'PING' && $this->replies->getDestinationId() !== 'receiver-0'){
+                        $this->pong();
+                    }
+                    if($payload->type === 'RECEIVER_STATUS' && isset($payload->status->applications[0])){
+                        $this->appId = $payload->status->applications[0]->transportId;
+                        $this->sessionId = $payload->status->applications[0]->sessionId;
+                        if($payload->status->applications[0]->appId === 'CC1AD845'){
+                            $this->init($this->appId);
+                            $this->status($this->appId, 'urn:x-cast:com.google.cast.media');
+                            //$loadit = false;
+                            $this->writeQueue('RECEIVER_STATUS');
+                            $this->lastMessage = 'complete';
+                        }
+                        if($payload->status->applications[0]->appId !== 'CC1AD845'){
+                            $this->writeQueue('CONNECT');
+                        }
+                    }
+                    if($payload->type === 'MEDIA_STATUS'){
+                        if(isset($payload->status[0]->mediaSessionId))
+                        {
+                            $this->mediaSessionId = $payload->status[0]->mediaSessionId;
+                            $this->writeQueue('MEDIA_STATUS');
+                        }
+                    }
+                    if($payload->type === 'CLOSE'){
+                        //die('receiver kicked us out');
+                    }
+                }
+            }
+        }
+        else{
+            $payload = array();
+        }
+        
+    }
+
     public function writeReply($reply)
     {
         var_dump($reply);
@@ -304,8 +404,8 @@ class Socket implements Channel
             case 'RECEIVER_STATUS':
                 if($this->receiverStatus === null){
                     $this->status();
-                    while($this->receiverStatus === null){
-                    }
+                    //while($this->receiverStatus === null){
+                    //}
                 }
                 return $this->receiverStatus;
             break;

@@ -1,0 +1,50 @@
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=1800
+DATE: Sat, 20 Dec 2014 18:45:33 GMT
+EXT:
+LOCATION: http://192.168.1.20:49152/description.xml
+SERVER: Linux/3.13.0-32-generic, UPnP/1.0, MediaTomb/0.12.1
+ST: urn:schemas-upnp-org:service:ContentDirectory:1
+USN: uuid:b6065bee-e499-464a-a202-1022ae296f12::urn:schemas-upnp-org:service:ContentDirectory:1
+
+
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=1800
+DATE: Sat, 20 Dec 2014 18:45:33 GMT
+EXT:
+LOCATION: http://192.168.1.20:49152/description.xml
+SERVER: Linux/3.13.0-32-generic, UPnP/1.0, MediaTomb/0.12.1
+ST: urn:schemas-upnp-org:service:ConnectionManager:1
+USN: uuid:b6065bee-e499-464a-a202-1022ae296f12::urn:schemas-upnp-org:service:ConnectionManager:1
+
+
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=1800
+DATE: Sat, 20 Dec 2014 18:45:33 GMT
+EXT:
+LOCATION: http://192.168.1.20:49152/description.xml
+SERVER: Linux/3.13.0-32-generic, UPnP/1.0, MediaTomb/0.12.1
+ST: urn:schemas-upnp-org:device:MediaServer:1
+USN: uuid:b6065bee-e499-464a-a202-1022ae296f12::urn:schemas-upnp-org:device:MediaServer:1
+
+
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=1800
+DATE: Sat, 20 Dec 2014 18:45:33 GMT
+EXT:
+LOCATION: http://192.168.1.20:49152/description.xml
+SERVER: Linux/3.13.0-32-generic, UPnP/1.0, MediaTomb/0.12.1
+ST: uuid:b6065bee-e499-464a-a202-1022ae296f12
+USN: uuid:b6065bee-e499-464a-a202-1022ae296f12
+
+
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=1800
+DATE: Sat, 20 Dec 2014 18:45:33 GMT
+EXT:
+LOCATION: http://192.168.1.20:49152/description.xml
+SERVER: Linux/3.13.0-32-generic, UPnP/1.0, MediaTomb/0.12.1
+ST: upnp:rootdevice
+USN: uuid:b6065bee-e499-464a-a202-1022ae296f12::upnp:rootdevice
+
+

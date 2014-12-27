@@ -1,0 +1,60 @@
+HTTP/1.1 200 OK
+Location: http://192.168.1.20:32469/DeviceDescription.xml
+Cache-Control: max-age=1800
+Server: UPnP/1.0 DLNADOC/1.50 Platinum/1.0.4.11
+EXT: 
+USN: uuid:29a323bb-9a21-c57c-0c6e-45c63e9699d3::upnp:rootdevice
+ST: upnp:rootdevice
+Date: Sat, 20 Dec 2014 18:45:33 GMT
+
+
+HTTP/1.1 200 OK
+Location: http://192.168.1.20:32469/DeviceDescription.xml
+Cache-Control: max-age=1800
+Server: UPnP/1.0 DLNADOC/1.50 Platinum/1.0.4.11
+EXT: 
+USN: uuid:29a323bb-9a21-c57c-0c6e-45c63e9699d3
+ST: uuid:29a323bb-9a21-c57c-0c6e-45c63e9699d3
+Date: Sat, 20 Dec 2014 18:45:33 GMT
+
+
+HTTP/1.1 200 OK
+Location: http://192.168.1.20:32469/DeviceDescription.xml
+Cache-Control: max-age=1800
+Server: UPnP/1.0 DLNADOC/1.50 Platinum/1.0.4.11
+EXT: 
+USN: uuid:29a323bb-9a21-c57c-0c6e-45c63e9699d3::urn:schemas-upnp-org:device:MediaServer:1
+ST: urn:schemas-upnp-org:device:MediaServer:1
+Date: Sat, 20 Dec 2014 18:45:33 GMT
+
+
+HTTP/1.1 200 OK
+Location: http://192.168.1.20:32469/DeviceDescription.xml
+Cache-Control: max-age=1800
+Server: UPnP/1.0 DLNADOC/1.50 Platinum/1.0.4.11
+EXT: 
+USN: uuid:29a323bb-9a21-c57c-0c6e-45c63e9699d3::urn:microsoft.com:service:X_MS_MediaReceiverRegistrar:1
+ST: urn:microsoft.com:service:X_MS_MediaReceiverRegistrar:1
+Date: Sat, 20 Dec 2014 18:45:33 GMT
+
+
+HTTP/1.1 200 OK
+Location: http://192.168.1.20:32469/DeviceDescription.xml
+Cache-Control: max-age=1800
+Server: UPnP/1.0 DLNADOC/1.50 Platinum/1.0.4.11
+EXT: 
+USN: uuid:29a323bb-9a21-c57c-0c6e-45c63e9699d3::urn:schemas-upnp-org:service:ContentDirectory:1
+ST: urn:schemas-upnp-org:service:ContentDirectory:1
+Date: Sat, 20 Dec 2014 18:45:33 GMT
+
+
+HTTP/1.1 200 OK
+Location: http://192.168.1.20:32469/DeviceDescription.xml
+Cache-Control: max-age=1800
+Server: UPnP/1.0 DLNADOC/1.50 Platinum/1.0.4.11
+EXT: 
+USN: uuid:29a323bb-9a21-c57c-0c6e-45c63e9699d3::urn:schemas-upnp-org:service:ConnectionManager:1
+ST: urn:schemas-upnp-org:service:ConnectionManager:1
+Date: Sat, 20 Dec 2014 18:45:33 GMT
+
+

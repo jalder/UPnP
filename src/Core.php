@@ -42,6 +42,7 @@ class Core {
 
     private function parseSearchResponse($response)
     {
+        //var_dump($response);
         $messages = explode("\r\n", $response);
         $parsedResponse = array();
         foreach( $messages as $row ) {

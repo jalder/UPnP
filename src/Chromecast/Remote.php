@@ -23,6 +23,9 @@ class Remote
                 }
             }
         }
+        else{
+            $this->host = $device;
+        }
 
         $this->application = $application;
 
@@ -35,7 +38,7 @@ class Remote
                 $this->channel = new Channels\Sqlite();
                 break;
             default:
-                $this->channel = new Channels\Socket($this->host, 'die');
+                $this->channel = $channel;
                 break;
         }
     }
