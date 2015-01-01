@@ -378,6 +378,9 @@ class Socket implements Channel
                         {
                             $this->mediaSessionId = $payload->status[0]->mediaSessionId;
                             $this->writeQueue('MEDIA_STATUS');
+                            if($payload->status[0]->playerState === 'IDLE'){
+                                $status = 'readyPlaylistNext';
+                            }
                         }
                     }
                     if($payload->type === 'CLOSE'){
@@ -389,7 +392,7 @@ class Socket implements Channel
         else{
             $payload = array();
         }
-        
+        return $status;
     }
 
     public function writeReply($reply)

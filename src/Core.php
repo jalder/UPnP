@@ -83,6 +83,38 @@ class Core {
         return $desc;
     }
 
+    public function getHeader($url)
+    {
+//        var_dump($url);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+//        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $content = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+//        var_dump($httpCode);
+        $size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+//        var_dump($content);
+        $header = substr($content, 0, $size);
+        curl_close($ch);
+//        var_dump($header);
+        $messages = explode("\r\n", $header);
+        $parsed = [];
+        foreach($messages as $m){
+            //            var_dump($m);
+            if(count(explode(':',$m))>1){
+                list($param, $value) = explode(':',$m, 2);
+                $parsed[$param] = $value;
+            }
+            else{
+                $parsed[$m] = $m;
+            }
+        }
+        $parsed['httpCode'] = $httpCode;
+        return $parsed;
+    }
+
     public function sendRequestToDevice($method, $arguments, $url, $type, $hostIp = '127.0.0.1', $hostPort = '80')
     {
         $body  ='<?xml version="1.0" encoding="utf-8"?>' . "\r\n";

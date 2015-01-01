@@ -7,7 +7,14 @@ class Chromecast extends Core
 
     public function discover()
     {
-        return parent::search('urn:dial-multiscreen-org:device:dial:1');
+        $devices = parent::search('urn:dial-multiscreen-org:device:dial:1');
+        foreach($devices as $k=>$d){
+            //if strpos google or chromecast keep
+            if($d['description']['device']['modelName'] !== 'Eureka Dongle'){
+                unset($devices[$k]);
+            }
+        }
+        return $devices;
     }
 
     public function filter($results = array())

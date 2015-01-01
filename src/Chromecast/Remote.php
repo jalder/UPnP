@@ -88,6 +88,9 @@ class Remote
             'media'=>$media_params,
             'autoplay'=>$autoplay
         );
+        if($this->application->getAppId()==='YouTube'){
+            $message = $this->application->getLoadMessage($url);
+        }
         $this->channel->addMessage($message);
     }
 

@@ -15,5 +15,16 @@ class YouTube
     {
         return $this->appId;
     }
-
+    
+    public function getLoadMessage($videoId)
+    {
+        $message = [
+            'type'=>'flingVideo',
+            'data'=>[
+                'currentTime'=>0,
+                'videoId'=>$videoId
+            ]
+        ];
+        return $message;
+    }
 }
