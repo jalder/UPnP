@@ -142,6 +142,7 @@ class Socket implements Channel
                                     if($payload->status->applications[0]->appId !== 'CC1AD845'){
                                         $this->writeQueue('CONNECT');
                                     }
+                                    $this->receiverStatus = $payload;
                                 }
                                 if($payload->type === 'MEDIA_STATUS'){
                                     if(isset($payload->status[0]->mediaSessionId))
@@ -149,6 +150,7 @@ class Socket implements Channel
                                         $this->mediaSessionId = $payload->status[0]->mediaSessionId;
                                         $this->writeQueue('MEDIA_STATUS');
                                     }
+                                    $this->mediaStatus = $payload;
                                 }
                                 if($payload->type === 'CLOSE'){
                                     die('receiver kicked us out');
@@ -349,7 +351,7 @@ class Socket implements Channel
 
     public function handleReply()
     {
-
+        $status = '';
         if($this->replies->getPayloadUtf8()){
             if($payload = json_decode($this->replies->getPayloadUtf8())){
                 if($this->verbosity > 0){
@@ -358,33 +360,45 @@ class Socket implements Channel
                 if(isset($payload->type)){
                     if($payload->type === 'PING' && $this->replies->getDestinationId() !== 'receiver-0'){
                         $this->pong();
+                        $status = 'ping';
                     }
                     if($payload->type === 'RECEIVER_STATUS' && isset($payload->status->applications[0])){
                         $this->appId = $payload->status->applications[0]->transportId;
                         $this->sessionId = $payload->status->applications[0]->sessionId;
+                        $status = 'receiver_status';
                         if($payload->status->applications[0]->appId === 'CC1AD845'){
                             $this->init($this->appId);
                             $this->status($this->appId, 'urn:x-cast:com.google.cast.media');
                             //$loadit = false;
                             $this->writeQueue('RECEIVER_STATUS');
                             $this->lastMessage = 'complete';
+                            //if ready to cast state, set status as readyPlaylistNext
+                            if($payload->status->applications[0]->statusText === "Ready To Cast"){
+                                $status = 'readyPlaylistNext';
+                            }
                         }
                         if($payload->status->applications[0]->appId !== 'CC1AD845'){
                             $this->writeQueue('CONNECT');
+                            $status = 'appNotRunning';
                         }
+                        $this->receiverStatus = $payload;
                     }
                     if($payload->type === 'MEDIA_STATUS'){
                         if(isset($payload->status[0]->mediaSessionId))
                         {
                             $this->mediaSessionId = $payload->status[0]->mediaSessionId;
                             $this->writeQueue('MEDIA_STATUS');
-                            if($payload->status[0]->playerState === 'IDLE'){
+                            if($payload->status[0]->playerState === 'IDLE' || count($payload->status)===0){
                                 $status = 'readyPlaylistNext';
                             }
                         }
+                        $this->mediaStatus = $payload;
                     }
                     if($payload->type === 'CLOSE'){
                         //die('receiver kicked us out');
+                        $this->receiverStatus = 'close';
+                        $this->mediaStatus = 'close';
+                        $status = 'close';
                     }
                 }
             }

@@ -149,6 +149,8 @@ class Core {
         $response = curl_exec( $ch );
         curl_close( $ch );
 
+        //var_dump($response);
+
         $doc = new \DOMDocument();
         $doc->loadXML($response);
         $result = $doc->getElementsByTagName('Result');

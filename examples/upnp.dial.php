@@ -32,8 +32,10 @@ foreach($dials as $d){
         $alive = $dial->getApp($appurl.urlencode($app['app']));
         if($alive){
             print($app['app'].' exists'.PHP_EOL);
-            $remote = new jalder\Upnp\Dial\Remote($appurl);
-            $remote->loadApp(urlencode($app['app']));
+            if($app['app'] === 'YouTube'){
+                $remote = new jalder\Upnp\Dial\Remote($appurl);
+                $remote->loadApp(urlencode($app['app']));
+            }
             var_dump($dial->getDescription($appurl.urlencode($app['app'])));
         }
     }
