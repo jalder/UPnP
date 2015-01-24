@@ -59,4 +59,18 @@ class Dial extends Core
         //var_dump($headers);
         return $headers;
     }
+
+    public static function findApps($location)
+    {
+        $applications = [];
+        $dial = new Dial();
+        $appurl = $dial->getApplicationUrl($location);
+        $registry = $dial->getRegistry();
+        foreach($registry as $r){
+            if($dial->getApp($appurl.urlencode($r['app']))){
+                $applications[] = $r;
+            }
+        }
+        return $applications;
+    }
 }
