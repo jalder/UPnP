@@ -76,10 +76,24 @@ class Core {
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $content = curl_exec($ch);
-        $xml = simplexml_load_string($content);
-        $json = json_encode($xml);
-        $desc = (array)json_decode($json, true);
-        curl_close($ch);
+        //var_dump($content);
+        //$xml = new \DOMDocument();
+        //$xml->load($url);
+        //$xml->load($content);
+        //$xml->read();
+        //var_dump($xml);
+        //if($xml->validate()){
+            //var_dump($content); die();
+            libxml_use_internal_errors(true); 
+            $xml = simplexml_load_string($content);
+            $json = json_encode($xml);
+            $desc = (array)json_decode($json, true);
+            curl_close($ch);
+        //}
+        //else{
+            //die($url);
+        //    return false;
+        //}
         return $desc;
     }
 
