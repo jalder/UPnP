@@ -24,7 +24,7 @@ class Core {
         $request .= "\r\n";
 
         $socket = socket_create(AF_INET, SOCK_DGRAM, 0);
-        socket_set_option($socket, 1, 6, true);
+        socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, true);
         socket_sendto($socket, $request, strlen($request), 0, '239.255.255.250', 1900);
         socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, array('sec'=>$sockTimout, 'usec'=>'0'));
         $response = array();
