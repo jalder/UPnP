@@ -62,7 +62,11 @@ class Browse
                     if($attr->name == 'id'){
                         $id = $attr->nodeValue;
                     }
+                    if($attr->name === 'parentID'){
+                        $parentId = $attr->nodeValue;
+                    }
                 }
+                $directories[$id]['parentID'] = $parentId;
                 foreach($item->childNodes as $property){
                     if($property->nodeName === 'res'){
                         $att_length = $property->attributes->length;
