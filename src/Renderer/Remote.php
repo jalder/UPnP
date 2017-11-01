@@ -165,6 +165,7 @@ class Remote
 
 	public function seek($unit = 'TRACK_NR', $target=0)
 	{
+		$args = array('InstanceID'=>0,'Unit'=>$unit, 'Target'=>$target);
 		$response = $this->upnp->sendRequestToDevice('Seek',$args,$this->ctrlurl.'serviceControl/AVTransport','AVTransport');
 		return $response['s:Body']['u:SeekResponse'];
 	}
